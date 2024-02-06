@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Bubble">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:fontFamily">@font/fredoka_one</item>
+        <item name="android:shadowColor">#40000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">4</item>
+        <item name="android:shadowRadius">4</item>
+    </style>
+</resources>

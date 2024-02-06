@@ -6,7 +6,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_gravity="center"
+    android:background="#B0D8DB"
     tools:context=".LogInActivity">
+
+
+
+    <View
+        android:id="@+id/ellipse_903"
+        android:layout_width="137dp"
+        android:layout_height="137dp"
+        android:layout_marginStart="-15dp"
+        android:layout_marginTop="-25dp"
+        android:background="@drawable/ellipse_903" />
+
+    <TextView
+        android:id="@+id/hello"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:layout_marginStart="122dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:lineSpacingExtra="9sp"
+        android:text="@string/hello"
+        android:textAppearance="@style/Bubble"
+        android:textSize="96sp" />
+
+    <TextView
+        android:id="@+id/welcome_bac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="143dp"
+        android:layout_marginTop="0dp"
+        android:gravity="center_vertical"
+        android:lineHeight="42sp"
+        android:lineSpacingExtra="3sp"
+        android:text="@string/welcome_bac"
+        android:textAppearance="@style/Bubble"
+        android:textSize="32sp" />
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -25,11 +60,12 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Log In"
+                android:text="@string/log_in"
                 android:id="@+id/LogInText"
-                android:textSize="40dp"
+                android:textSize="40sp"
                 android:textAlignment="center"
-                android:textStyle="bold"/>
+                android:textColor="#98BEC0"
+                android:textAppearance="@style/Bubble"/>
 
             <EditText
                 android:layout_width="match_parent"
@@ -37,33 +73,33 @@
                 android:id="@+id/username"
                 android:layout_marginTop="40dp"
                 android:padding="10dp"
-                android:hint="Username"/>
-<!--                android:drawableLeft="@drawable/baseline_person_24"-->
-<!--                android:drawablePadding="10dp"-->
-<!--                />-->
+                android:hint="@string/username"
+                android:importantForAutofill="no"
+                android:inputType="textAutoCorrect" />
+
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:id="@+id/password"
                 android:layout_marginTop="40dp"
                 android:padding="10dp"
-                android:hint="Password"/>
-<!--                android:drawableLeft="@drawable/baseline_lock_24"-->
-<!--                android:drawablePadding="10dp"-->
-<!--                />-->
+                android:hint="@string/password"
+                android:importantForAutofill="no"
+                android:inputType="textPassword" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:id="@+id/new_user_signup"
                 android:layout_marginTop="40dp"
                 android:padding="10dp"
-                android:text="New User Sign Up"
+                android:text="@string/new_user_sign_up"
                 />
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:id="@+id/logInButton"
-                android:text="Submit"
+                android:text="@string/submit"
                 android:layout_marginTop="30dp"/>
 
         </LinearLayout>
