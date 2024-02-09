@@ -10,8 +10,8 @@ import com.example.wpms.MainActivity
 import com.example.wpms.databinding.ActivityLogInBinding
 
 class LogInActivity : AppCompatActivity() {
-   private lateinit var binding: ActivityLogInBinding
-   private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var binding: ActivityLogInBinding
+    private lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

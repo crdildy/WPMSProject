@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "499121894526",
+    "project_id": "wpms-9d402",
+    "storage_bucket": "wpms-9d402.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:499121894526:android:62266384d005726ab5942f",
+        "android_client_info": {
+          "package_name": "com.example.wpms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3OJDnip9kx8vU3n0Af01VcFH17q2j3gs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
