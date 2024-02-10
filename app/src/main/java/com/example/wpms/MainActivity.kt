@@ -24,9 +24,8 @@ import kotlinx.coroutines.launch
 import java.net.Socket
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.io.PrintWriter
-import java.net.ServerSocket
-
+import kotlinx.coroutines.*
+import android.widget.Toast
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +41,16 @@ class MainActivity : ComponentActivity() {
                     Greeting("Android")
                 }
             }
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            clientTCP()
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(applicationContext, "Network operation completed", Toast.LENGTH_LONG).show()
+            }
+
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -63,6 +72,32 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+fun clientTCP() {
+    // Define the server address and port
+    val serverAddress = "10.0.2.2"
+    val port = 12345
+
+    // Create a socket object
+    val socket = Socket(serverAddress, port)
+
+    // Get the input stream from the socket
+    val inputStream = socket.getInputStream()
+
+    // Read data from the input stream
+    val buffer = ByteArray(1024)
+    val bytesRead = inputStream.read(buffer)
+
+    // Convert the received data to a string
+    val receivedData = String(buffer, 0, bytesRead)
+
+    // Print the received data
+    println(receivedData)
+
+    // Close the socket
+    socket.close()
+}
+
 // private fun updateUI(data: String) {
 //        // Parse the received data (pressure and moisture readings)
 //        val readings = data.split("|")
