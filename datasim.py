@@ -1,43 +1,39 @@
-import socket
-import random
-import time
+# first of all import the socket library 
+import socket             
 
-def generate_pressure_reading():
-    print("Generating pressure reading!")
-    # Your logic to generate simulated pressure readings
-    rand_pressure = random.randint(0, 100)
-    return rand_pressure
+# next create a socket object 
+s = socket.socket()         
+print ("Socket successfully created")
 
-def main():
-    # Initialize server socket
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # server_socket.bind(('localhost', 55786))
-    server_socket.bind(('127.0.0.1', 55786))
-    server_socket.listen(1)
+# reserve a port on your computer in our 
+# case it is 12345 but it can be anything 
+port = 12345            
 
-    print("Waiting for client connection...")
-    client_socket, client_address = server_socket.accept()
-    print(f"Connected to client at {client_address}")
+# Next bind to the port 
+# we have not typed any ip in the ip field 
+# instead we have inputted an empty string 
+# this makes the server listen to requests 
+# coming from other computers on the network 
+s.bind(('', port))         
+print ("socket binded to %s" %(port)) 
 
-    # Send pressure readings to the client
-    while True:
-        pressure_reading1 = generate_pressure_reading()
-        pressure_reading2 = generate_pressure_reading()
-        pressure_reading3 = generate_pressure_reading()
+# put the socket into listening mode 
+s.listen(5)     
+print ("socket is listening")         
 
-        # Print out three pressure readings
-        print("Printing out three pressure readings")
-        print(f"Reading 1: {pressure_reading1}, Reading 2: {pressure_reading2}, Reading 3: {pressure_reading3}")
+# a forever loop until we interrupt it or 
+# an error occurs 
+while True: 
 
-        # Send the pressure readings to the client
-        client_socket.send(f"{pressure_reading1} {pressure_reading2} {pressure_reading3}\n".encode())
+# Establish connection with client. 
+ c, addr = s.accept()     
+ print ('Got connection from', addr )
 
-        # Simulate sending data every ten seconds
-        time.sleep(10)
+# send a thank you message to the client. encoding to send byte type. 
+ c.send('Thank you for connecting'.encode()) 
 
-    # Close the socket connection
-    # client_socket.close()
-    # server_socket.close()
+# Close the connection with the client 
+ c.close()
 
-if __name__ == "__main__":
-    main()
+# Breaking once connection closed
+ break
