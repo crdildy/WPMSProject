@@ -5,7 +5,6 @@ package com.example.wpms
 // Use socket class to establish a connection
 // Once connection is establish, read the data being sent
 
-
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -17,15 +16,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.lifecycleScope
 import com.example.wpms.ui.theme.WPMSTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.Socket
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import kotlinx.coroutines.*
 import android.widget.Toast
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,8 +41,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+
+        // This allows for things to happen in the background of the app (Without this app keeps crashing on itself)
         CoroutineScope(Dispatchers.IO).launch {
 
+            // Calls the clientTCP function to connect to server
             clientTCP()
 
             withContext(Dispatchers.Main) {
@@ -53,23 +54,6 @@ class MainActivity : ComponentActivity() {
 
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                Log.d("Main Activity", "Coroutine")
-                //val socket = Socket("10.0.2.2", 54321) // Use the server's IP address and port
-                val socket = Socket("127.0.0.1",55786 )
-                val input = BufferedReader(InputStreamReader(socket.getInputStream()))
-                while (true) {
-                    val data = input.readLine()
-                    Log.d("Main Activity", "Data value is: $data")
-                    //update UI
-                }
-                //close socket
-                //socket.close()
-            } catch (e: Exception) {
-                Log.e("Main Activity", "Error: ${e.message}")
-            }
-        }
     }
 }
 
@@ -78,24 +62,44 @@ fun clientTCP() {
     val serverAddress = "10.0.2.2"
     val port = 12345
 
-    // Create a socket object
-    val socket = Socket(serverAddress, port)
+    try {
+        // Create a socket to connect to the server
+        val socket = Socket(serverAddress, port)
 
-    // Get the input stream from the socket
-    val inputStream = socket.getInputStream()
+        // Create input stream to read data from the socket
+        val inputStream = socket.getInputStream()
+        println(inputStream)
+        val reader = BufferedReader(InputStreamReader(inputStream))
+        println(reader)
 
-    // Read data from the input stream
-    val buffer = ByteArray(1024)
-    val bytesRead = inputStream.read(buffer)
+        // Read data from the server
+        val data1 = reader.readLine()
+        println("Received data from server: $data1")
 
-    // Convert the received data to a string
-    val receivedData = String(buffer, 0, bytesRead)
+        // Read and print the second line of data from the server
+        val data2 = reader.readLine()
+        println("Received data from server: $data2")
 
-    // Print the received data
-    println(receivedData)
+        // Read and print the third line of data from the server
+        val data3 = reader.readLine()
+        println("Received data from server: $data3")
 
-    // Close the socket
-    socket.close()
+        // Read and print the fourth line of data from the server
+        val data4 = reader.readLine()
+        if(data4 == "1")
+        {
+            println("Moisture Detected")
+        } else {
+            println("Moisture Not Detected")
+        }
+
+
+        // Close the socket
+        socket.close()
+    } catch (e: Exception) {
+        // Handle any exceptions
+        e.printStackTrace()
+    }
 }
 
 // private fun updateUI(data: String) {
