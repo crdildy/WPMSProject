@@ -1,8 +1,8 @@
-package com.example.wpms
+package com.example.wpms.LogInActivities
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +12,8 @@ import com.example.wpms.databinding.ActivityLogInBinding
 class LogInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLogInBinding
     private lateinit var firebaseAuth: FirebaseAuth
+    var isCaregiverMode = false
+    //val toggleModeArea = findViewById<TextView>(R.id.ToggleModes)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +38,19 @@ class LogInActivity : AppCompatActivity() {
                         Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
                     }
                 }
+            }
+        }
+
+        binding.ToggleModes.setOnClickListener {
+            isCaregiverMode = !isCaregiverMode
+            if (isCaregiverMode) {
+                //Handling caregiver mode
+                binding.ToggleModes.text = "Caregiver Mode"
+                //direct to caregiver homescreen
+            } else {
+                //Handles patient mode
+                binding.ToggleModes.text = "Patient Mode"
+                //direct to patient homescreen
             }
         }
     }
