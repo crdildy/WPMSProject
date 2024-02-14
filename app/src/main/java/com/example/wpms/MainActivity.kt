@@ -5,6 +5,8 @@ package com.example.wpms
 // Use socket class to establish a connection
 // Once connection is establish, read the data being sent
 
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,6 +20,9 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.TextView
+import java.io.IOException
+
+var mediaPlayer : MediaPlayer? = null
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +67,8 @@ class MainActivity : AppCompatActivity() {
             textView4.text = "Pressure level on sensor three:" + pressureThreeVal
             if(pressureOneVal.trim().toInt() > pressureThreshold || pressureTwoVal.trim().toInt() > pressureThreshold || pressureThreeVal.trim().toInt() > pressureThreshold) {
                 textView5.text = "Pressure Levels Exceede Threshold!"
+                playAudio()
+                Toast.makeText(applicationContext, "Audio started playing",Toast.LENGTH_LONG).show()
             } else {
                 textView5.text = "Pressure Levels are Okay!"
             }
@@ -123,4 +130,20 @@ fun clientTCP(): List<String> {
         e.printStackTrace()
         return emptyList()
     }
+}
+
+fun playAudio() {
+    val audioURL = "https://raw.githubusercontent.com/crdildy/WPMSProject/main/AlarmSound/beep-warning-6387.mp3"
+
+    mediaPlayer = MediaPlayer()
+    mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+    try {
+        mediaPlayer!!.setDataSource(audioURL)
+        mediaPlayer!!.prepare()
+        mediaPlayer!!.start()
+
+    } catch (e : IOException) {
+        e.printStackTrace()
+    }
+
 }
