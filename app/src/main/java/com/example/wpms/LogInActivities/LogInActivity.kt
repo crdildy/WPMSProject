@@ -5,20 +5,23 @@ import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.wpms.CaregiverHomeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.example.wpms.MainActivity
+//import com.example.wpms.PatientHomeActivity
 import com.example.wpms.databinding.ActivityLogInBinding
 
 class LogInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLogInBinding
     private lateinit var firebaseAuth: FirebaseAuth
-    var isCaregiverMode = false
+    private var isCaregiverMode = false
     //val toggleModeArea = findViewById<TextView>(R.id.ToggleModes)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLogInBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         binding.newUserSignup.setOnClickListener{
             val intentNewUser = Intent(this, SignUpActivity::class.java)
             startActivity(intentNewUser)
@@ -31,9 +34,18 @@ class LogInActivity : AppCompatActivity() {
 
             if (user.isNotEmpty() && pass.isNotEmpty()) {
                 firebaseAuth.signInWithEmailAndPassword(user, pass).addOnCompleteListener {
+                    //Direct to correct homepage based on boolean isCaregiverMode and successful log in
                     if (it.isSuccessful) {
-                        val intentRecipe = Intent(this, MainActivity::class.java)
-                        startActivity(intentRecipe)
+                        if(isCaregiverMode){
+                            //Direct to caregiver homepage
+                            val caregiverHome = Intent(this, CaregiverHomeActivity::class.java)
+                            startActivity(caregiverHome)
+                        }
+                        else{
+                            //Treating main activity as our patient homepage for the time being
+                            val patientHome = Intent(this, MainActivity::class.java)
+                            startActivity(patientHome)
+                        }
                     } else {
                         Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
                     }
