@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "214393076846",
+    "project_id": "assignment4-ec110",
+    "storage_bucket": "assignment4-ec110.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:214393076846:android:59c35ca0103b760bd0fa7f",
+        "android_client_info": {
+          "package_name": "edu.uark.ahnelson.roomwordsample"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDcXz4k0mITEEx-9xalCHrUAsvI8T0ld0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
