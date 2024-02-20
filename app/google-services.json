@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "214393076846",
-    "project_id": "assignment4-ec110",
-    "storage_bucket": "assignment4-ec110.appspot.com"
+    "project_number": "499121894526",
+    "project_id": "wpms-9d402",
+    "storage_bucket": "wpms-9d402.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:214393076846:android:59c35ca0103b760bd0fa7f",
+        "mobilesdk_app_id": "1:499121894526:android:62266384d005726ab5942f",
         "android_client_info": {
-          "package_name": "edu.uark.ahnelson.roomwordsample"
+          "package_name": "com.example.wpms"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCDcXz4k0mITEEx-9xalCHrUAsvI8T0ld0"
+          "current_key": "AIzaSyD3OJDnip9kx8vU3n0Af01VcFH17q2j3gs"
         }
       ],
       "services": {

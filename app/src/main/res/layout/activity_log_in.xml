@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:backgroundcolor="FFFFFF"
+    android:background="@color/white"
     android:orientation="vertical"
     tools:context=".LogInActivity">
 
@@ -124,8 +124,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:background="@drawable/med_logo"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/sign_up_button"
