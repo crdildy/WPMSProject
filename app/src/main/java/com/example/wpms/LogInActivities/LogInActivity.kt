@@ -24,7 +24,7 @@ class LogInActivity : AppCompatActivity() {
         binding = ActivityLogInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.newUserSignup.setOnClickListener{
+        binding.signUpButton.setOnClickListener{
             val intentNewUser = Intent(this, SignUpActivity::class.java)
             startActivity(intentNewUser)
         }
