@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.wpms.CaregiverHomeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.example.wpms.MainActivity
+import com.example.wpms.R
 //import com.example.wpms.PatientHomeActivity
 import com.example.wpms.databinding.ActivityLogInBinding
 
@@ -53,15 +55,17 @@ class LogInActivity : AppCompatActivity() {
             }
         }
 
-        binding.ToggleModes.setOnClickListener {
+        binding.medButton.setOnClickListener {
             isCaregiverMode = !isCaregiverMode
             if (isCaregiverMode) {
                 //Handling caregiver mode
-                binding.ToggleModes.text = "Caregiver Mode"
+                val medLogoDrawable = ContextCompat.getDrawable(this, R.drawable.med_logo)
+                binding.medButton.background = medLogoDrawable
                 //direct to caregiver homescreen
             } else {
                 //Handles patient mode
-                binding.ToggleModes.text = "Patient Mode"
+                val patientLogoDrawable = ContextCompat.getDrawable(this, R.drawable.patient_logo)
+                binding.medButton.background = patientLogoDrawable
                 //direct to patient homescreen
             }
         }
