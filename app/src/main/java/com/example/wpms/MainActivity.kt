@@ -21,6 +21,8 @@ import android.os.Looper
 import android.view.View
 import android.widget.TextView
 import java.io.IOException
+import java.net.InetSocketAddress
+import java.net.SocketTimeoutException
 
 var mediaPlayer : MediaPlayer? = null
 
@@ -42,94 +44,95 @@ class MainActivity : AppCompatActivity() {
         var moistureVal = ""
         val pressureThreshold = 65
 
-        // Works on the background off the app (If we dont have this app keeps crashing)
+        // Works on the background off the app (If we don't have this, the app keeps crashing)
         CoroutineScope(Dispatchers.IO).launch {
 
-            // Calls TCP server connection
-            val dataList = clientTCP()
+            while (true) {
+                try {
+                    // Calls TCP server connection
+                    val dataList = clientTCP()
 
-            // Store the returned data
-            pressureOneVal =  " ${dataList.getOrNull(0)}"
-            pressureTwoVal =  " ${dataList.getOrNull(1)}"
-            pressureThreeVal =  " ${dataList.getOrNull(2)}"
-            moistureVal =  " ${dataList.getOrNull(3)}"
+                    // Store the returned data
+                    val pressureOneVal = " ${dataList.getOrNull(1)}"
+                    val pressureTwoVal = " ${dataList.getOrNull(2)}"
+                    val pressureThreeVal = " ${dataList.getOrNull(3)}"
+                    val moistureVal = " ${dataList.getOrNull(0)}"
 
-            withContext(Dispatchers.Main) {
-                Toast.makeText(applicationContext, "Network operation completed", Toast.LENGTH_LONG).show()
+                    withContext(Dispatchers.Main) {
+                        // Update the UI with the received data
+                        textView2.text = "Pressure level on sensor one: " + pressureOneVal
+                        textView3.text = "Pressure level on sensor two:" + pressureTwoVal
+                        textView4.text = "Pressure level on sensor three:" + pressureThreeVal
+                        if(pressureOneVal.trim().toInt() > pressureThreshold || pressureTwoVal.trim().toInt() > pressureThreshold || pressureThreeVal.trim().toInt() > pressureThreshold) {
+                            textView5.text = "Pressure Levels Exceede Threshold!"
+                            //playAudio()
+                            //Toast.makeText(applicationContext, "Audio started playing",Toast.LENGTH_LONG).show()
+                        } else {
+                            textView5.text = "Pressure Levels are Okay!"
+                        }
+                        if(moistureVal == "1") {
+                            textView6.text = "Moissture Detected: False"
+                        } else {
+                            textView6.text = "Moissture Detected: True"
+                        }
+
+                        Toast.makeText(applicationContext, "Values updated", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    // Handle any exceptions, such as socket errors
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(applicationContext, "Error reading values: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
-
         }
 
-        //delay method
-        val runnable = Runnable {
-            textView2.text = "Pressure level on sensor one: " + pressureOneVal
-            textView3.text = "Pressure level on sensor two:" + pressureTwoVal
-            textView4.text = "Pressure level on sensor three:" + pressureThreeVal
-            if(pressureOneVal.trim().toInt() > pressureThreshold || pressureTwoVal.trim().toInt() > pressureThreshold || pressureThreeVal.trim().toInt() > pressureThreshold) {
-                textView5.text = "Pressure Levels Exceede Threshold!"
-                playAudio()
-                Toast.makeText(applicationContext, "Audio started playing",Toast.LENGTH_LONG).show()
-            } else {
-                textView5.text = "Pressure Levels are Okay!"
-            }
-            if(moistureVal == "1") {
-                textView6.text = "Moissture Detected: False"
-            } else {
-                textView6.text = "Moissture Detected: True"
-            }
-            textView.text = "Reading Done."
-        }
-
-        //setting up parameters for the delay method
-        val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed(runnable, 15000)
-        textView.text = "Reading Please Wait..."
 
     }
 
 
 }
 
-fun clientTCP(): List<String> {
+fun clientTCP() : List<String> {
     // Define the server address and port
     val serverAddress = "10.0.2.2"
     val port = 12345
 
+    // Create a socket to connect to the server
+    val socket = Socket()
+
+    // Set a timeout of 1 seconds
+    socket.soTimeout = 1000
+
+    // Connect to the server
+    socket.connect(InetSocketAddress(serverAddress, port), 1000)
+
+    // Create an ArrayList to store the received data
+    val dataList = ArrayList<String>()
+
+    // Receive data from the server
+    val inputStream = socket.getInputStream()
+    val reader = BufferedReader(InputStreamReader(inputStream))
+
     try {
-        // Create a socket to connect to the server
-        val socket = Socket(serverAddress, port)
-
-        // Create input stream to read data from the socket
-        val inputStream = socket.getInputStream()
-        println(inputStream)
-        val reader = BufferedReader(InputStreamReader(inputStream))
-        println(reader)
-
-        // Read data from the server
-        val data1 = reader.readLine()
-        println("Received data from server: $data1")
-
-        // Read and print the second line of data from the server
-        val data2 = reader.readLine()
-        println("Received data from server: $data2")
-
-        // Read and print the third line of data from the server
-        val data3 = reader.readLine()
-        println("Received data from server: $data3")
-
-        // Read and print the third line of data from the server
-        val data4 = reader.readLine()
-        println("Received data from server: $data4")
-
+        var line: String?
+        while (true) {
+            line = reader.readLine()
+            if (line == null) {
+                break
+            }
+            println(line)
+            dataList.add(line)
+        }
+    } catch (e: SocketTimeoutException) {
+        // Handle timeout exception
+        println("Timeout: Server did not respond")
+    } finally {
         // Close the socket
         socket.close()
-
-        return listOf(data1, data2, data3, data4)
-    } catch (e: Exception) {
-        // Handle any exceptions
-        e.printStackTrace()
-        return emptyList()
     }
+
+    return dataList
 }
 
 fun playAudio() {
