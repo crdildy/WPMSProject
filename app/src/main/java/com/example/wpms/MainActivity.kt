@@ -13,16 +13,15 @@ import kotlinx.coroutines.launch
 import java.net.Socket
 import kotlinx.coroutines.*
 import android.widget.Toast
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.TextView
 import java.io.IOException
+import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 var mediaPlayer : MediaPlayer? = null
 
@@ -44,25 +43,27 @@ class MainActivity : AppCompatActivity() {
         var moistureVal = ""
         val pressureThreshold = 65
 
-        // Works on the background off the app (If we don't have this, the app keeps crashing)
-        CoroutineScope(Dispatchers.IO).launch {
+        // Get a reference to the CoroutineScope
+        val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-            while (true) {
+        // Works on the background off the app (If we don't have this, the app keeps crashing)
+        coroutineScope.launch {
+            while (isActive) {
                 try {
                     // Calls TCP server connection
                     val dataList = clientTCP()
 
                     // Store the returned data
-                    val pressureOneVal = " ${dataList.getOrNull(1)}"
-                    val pressureTwoVal = " ${dataList.getOrNull(2)}"
-                    val pressureThreeVal = " ${dataList.getOrNull(3)}"
-                    val moistureVal = " ${dataList.getOrNull(0)}"
+                    pressureOneVal = " ${dataList.getOrNull(1)}"
+                    pressureTwoVal = " ${dataList.getOrNull(2)}"
+                    pressureThreeVal = " ${dataList.getOrNull(3)}"
+                    moistureVal = " ${dataList.getOrNull(0)}"
 
+                    // Update the UI with the received data
                     withContext(Dispatchers.Main) {
-                        // Update the UI with the received data
-                        textView2.text = "Pressure level on sensor one: " + pressureOneVal
-                        textView3.text = "Pressure level on sensor two:" + pressureTwoVal
-                        textView4.text = "Pressure level on sensor three:" + pressureThreeVal
+                        textView2.text = "Pressure level on sensor one: $pressureOneVal"
+                        textView3.text = "Pressure level on sensor two: $pressureTwoVal"
+                        textView4.text = "Pressure level on sensor three: $pressureThreeVal"
                         if(pressureOneVal.trim().toInt() > pressureThreshold || pressureTwoVal.trim().toInt() > pressureThreshold || pressureThreeVal.trim().toInt() > pressureThreshold) {
                             textView5.text = "Pressure Levels Exceede Threshold!"
                             //playAudio()
@@ -70,69 +71,112 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             textView5.text = "Pressure Levels are Okay!"
                         }
-                        if(moistureVal == "1") {
-                            textView6.text = "Moissture Detected: False"
+                        textView6.text = if (moistureVal == "1") {
+                            "Moissture Detected: False"
                         } else {
-                            textView6.text = "Moissture Detected: True"
+                            "Moissture Detected: True"
                         }
 
-                        Toast.makeText(applicationContext, "Values updated", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, "Values updated", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 } catch (e: Exception) {
                     // Handle any exceptions, such as socket errors
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(applicationContext, "Error reading values: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Error reading values: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
         }
-
-
     }
-
-
 }
 
-fun clientTCP() : List<String> {
+fun clientTCP(): List<String> {
     // Define the server address and port
     val serverAddress = "10.0.2.2"
     val port = 12345
 
+    val dataList = mutableListOf<String>()
+
     // Create a socket to connect to the server
     val socket = Socket()
 
-    // Set a timeout of 1 seconds
-    socket.soTimeout = 1000
-
-    // Connect to the server
-    socket.connect(InetSocketAddress(serverAddress, port), 1000)
-
-    // Create an ArrayList to store the received data
-    val dataList = ArrayList<String>()
-
-    // Receive data from the server
-    val inputStream = socket.getInputStream()
-    val reader = BufferedReader(InputStreamReader(inputStream))
-
     try {
-        var line: String?
-        while (true) {
-            line = reader.readLine()
-            if (line == null) {
-                break
+        // Set a timeout of 1 second
+        socket.soTimeout = 1000
+
+        // Connect to the server
+        socket.connect(InetSocketAddress(serverAddress, port), 1000)
+
+        // Receive data from the server
+        val inputStream = socket.getInputStream()
+
+        try {
+            // Receive moisture value
+            val moistureData = inputStream.readBytesFully(4)
+            val moisture = ByteBuffer.wrap(moistureData).order(ByteOrder.BIG_ENDIAN).int
+            println("Moisture: $moisture")
+            dataList.add("Moisture: $moisture")
+
+            while (true) {
+                // Receive random numbers
+                val randNumData = inputStream.readBytesFully(4)
+                val randNumTwoData = inputStream.readBytesFully(4)
+                val randNumThreeData = inputStream.readBytesFully(4)
+
+                val randNum = ByteBuffer.wrap(randNumData).order(ByteOrder.BIG_ENDIAN).int
+                val randNumTwo = ByteBuffer.wrap(randNumTwoData).order(ByteOrder.BIG_ENDIAN).int
+                val randNumThree = ByteBuffer.wrap(randNumThreeData).order(ByteOrder.BIG_ENDIAN).int
+
+                println("Random Numbers: $randNum, $randNumTwo, $randNumThree")
+                dataList.add("$randNum")
+                dataList.add("$randNumTwo")
+                dataList.add("$randNumThree")
             }
-            println(line)
-            dataList.add(line)
+        } catch (e: IOException) {
+            // Handle IO exceptions
+            println("Error reading data: ${e.message}")
+        } finally {
+            // Close the input stream
+            inputStream.close()
         }
     } catch (e: SocketTimeoutException) {
-        // Handle timeout exception
-        println("Timeout: Server did not respond")
+        // Handle socket timeout exception
+        println("Connection timed out: ${e.message}")
+    } catch (e: IOException) {
+        // Handle other IO exceptions
+        println("Error connecting to server: ${e.message}")
     } finally {
         // Close the socket
         socket.close()
     }
 
     return dataList
+}
+
+fun InputStream.readBytesFully(size: Int): ByteArray {
+    // Create a buffer to store the read bytes
+    val buffer = ByteArray(size)
+    // Track the total number of bytes read
+    var read = 0
+    // Continue reading until we have read `size` bytes
+    while (read < size) {
+        // Read bytes into the buffer, starting at the current position
+        val bytesRead = this.read(buffer, read, size - read)
+        // Check if we reached the end of the stream
+        if (bytesRead == -1) {
+            // If so, throw an exception
+            throw IllegalStateException("Stream ended before reading $size bytes")
+        }
+        // Update the total number of bytes read
+        read += bytesRead
+    }
+    // Return the read bytes
+    return buffer
 }
 
 fun playAudio() {
