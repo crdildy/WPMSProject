@@ -27,9 +27,9 @@ while True:
         print(moisture)
         c.send(bytes(str(moisture), 'utf-8'))
         
-        # Send random numbers for 15 seconds
+        # Send random numbers for 3 seconds
         start_time = time.time()
-        while time.time() - start_time < 4:
+        while time.time() - start_time < 3:
             # Generate random numbers
             randNum = generateRandomInt()
             randNumTwo = generateRandomInt()
