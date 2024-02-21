@@ -1,5 +1,6 @@
 import socket
 import random
+import struct
 import time
 
 def generateRandomInt():
@@ -24,25 +25,24 @@ while True:
     try:
         # Generate and send moisture value
         moisture = random.randint(1, 2)
-        print(moisture)
-        c.send(bytes(str(moisture), 'utf-8'))
+        print("Moisture:", moisture)
+        c.send(struct.pack('>i', moisture))
         
-        # Send random numbers for 3 seconds
+        # Send random numbers for 1 seconds
         start_time = time.time()
-        while time.time() - start_time < 3:
+        while time.time() - start_time < 1:
             # Generate random numbers
             randNum = generateRandomInt()
             randNumTwo = generateRandomInt()
             randNumThree = generateRandomInt()
 
-            # Send the random number as bytes
-            c.send(bytes(str(randNum) + '\n', 'utf-8'))
-            c.send(bytes(str(randNumTwo) + '\n', 'utf-8'))
-            c.send(bytes(str(randNumThree) + '\n', 'utf-8'))
+            # Pack the random numbers in big-endian format (4 bytes each for integers)
+            message = struct.pack('>iii', randNum, randNumTwo, randNumThree)
+            c.send(message)
 
             # Wait for a short while before sending the next set of random numbers
             time.sleep(1)
-            
+    
     except ConnectionResetError:
         # Client disconnected
         print("Client disconnected")
