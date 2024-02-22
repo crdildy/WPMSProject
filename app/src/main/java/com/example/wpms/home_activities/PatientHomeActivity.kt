@@ -29,10 +29,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.example.wpms.databinding.ActivityLogInBinding
 import com.example.wpms.databinding.ActivityPatientHomeBinding
+import kotlin.math.cos
 import kotlin.math.log
+import kotlin.math.sin
 
 class PatientHomeActivity : AppCompatActivity() {
-    private var pressureVal by mutableStateOf(0f)
+    private var pressureVal by mutableStateOf(1f)
     private lateinit var binding: ActivityPatientHomeBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +46,7 @@ class PatientHomeActivity : AppCompatActivity() {
 
         // Find the ComposeView
         val composeView = findViewById<ComposeView>(R.id.composeView)
+
 
         // Set content for ComposeView
         composeView.setContent {
@@ -65,6 +68,8 @@ class PatientHomeActivity : AppCompatActivity() {
                 // Handle the case where the EditText is empty
             }
         }
+
+
     }
     fun pressureUpdate(pressure: Float){
         pressureVal = pressure
@@ -77,20 +82,21 @@ class PatientHomeActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun CustomProgressBar(pressure: Float) {
+    fun CustomProgressBar(pressurePercentage: Float = 1.0f) {
         Canvas(
             modifier = Modifier
                 .size(150.dp)
-                .padding(10.dp)
+                .padding(20.dp)
                 .rotate(140f)
         ) {
+            val radius = size.minDimension / 2
             // Background Arc
             drawArc(
                 color = Color(android.graphics.Color.parseColor("#90A4AE")),
                 0f,
                 260f,
                 false,
-                style = Stroke(10.dp.toPx(), cap = StrokeCap.Round),
+                style = Stroke(35.dp.toPx(), cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
             )
 
@@ -101,10 +107,20 @@ class PatientHomeActivity : AppCompatActivity() {
                     Color(android.graphics.Color.parseColor("#ff8200"))
                 )),
                 0f,
-                pressure,
+                pressurePercentage,
                 false,
-                style = Stroke(10.dp.toPx(), cap = StrokeCap.Round),
+                style = Stroke(35.dp.toPx(), cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
+            )
+
+            // Profile Picture
+            drawCircle(
+                color = Color.White,
+                radius =  radius - 25.dp.toPx(),
+            )
+            drawCircle(
+                color = Color.Gray,
+                radius = radius - 30.dp.toPx(),
             )
         }
     }
