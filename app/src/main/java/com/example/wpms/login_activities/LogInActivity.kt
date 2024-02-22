@@ -1,12 +1,11 @@
-package com.example.wpms.LogInActivities
+package com.example.wpms.login_activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.wpms.CaregiverHomeActivity
+import com.example.wpms.home_activities.CaregiverHomeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.example.wpms.MainActivity
 import com.example.wpms.R

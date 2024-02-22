@@ -7,7 +7,7 @@
     android:layout_gravity="center"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".LogInActivities.LogInActivity">
+    tools:context=".login_activities.LogInActivity">
 
     <View
         android:id="@+id/vector_2"

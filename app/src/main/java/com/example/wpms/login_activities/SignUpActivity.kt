@@ -1,5 +1,6 @@
-package com.example.wpms.LogInActivities
+package com.example.wpms.login_activities
 
+import com.example.wpms.home_activities.PatientHomeActivity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -41,6 +42,12 @@ class SignUpActivity: AppCompatActivity() {
             }else{
                 Toast.makeText(this,"Empty fields are not allowed", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        //Test to patient activity
+        binding.test.setOnClickListener{
+            val intentPatientTest = Intent(this, PatientHomeActivity::class.java)
+            startActivity(intentPatientTest)
         }
     }
 
