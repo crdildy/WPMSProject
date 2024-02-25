@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
+import androidx.room.Room
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -29,6 +30,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //initialize Room database
+        db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "patient_data_db"
+        ).build()
+
         val textView = findViewById<View>(R.id.textView1) as TextView
         val textView2 = findViewById<View>(R.id.textView2) as TextView
         val textView3 = findViewById<View>(R.id.textView3) as TextView
@@ -90,8 +98,24 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                     }
                 }
+
+            //Insert received data into Room database
+                val patientData = PatientData(
+                    pressureLeft = pressureOneVal.trim().toInt(),
+                    pressureRight = pressureTwoVal.trim().toInt(),
+                    pressureCenter = pressureTwoVal.trim().toInt(),
+
+                    moisture = moistureVal.trim().toInt()
+                )
+                insertDataIntoDB(patientData)
             }
         }
+    }
+}
+
+private fun <PatientData> insertDataIntoDB(patientData: PatientData){
+    GlobalScope.launch(Dispatchers.IO) {
+        db.patientDataDao().insert(patientData)
     }
 }
 
