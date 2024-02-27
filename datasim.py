@@ -1,70 +1,49 @@
-# first of all import the socket library 
 import socket
-import random  
+import random
+import struct
+import time
 
-# return random integer when called from 1-100
 def generateRandomInt():
-    return random.randint(1,100)
+    return random.randint(1, 100)
 
-def moisutreDetection():
-    return random.randint(1,2)
+# Create a socket object
+s = socket.socket()
 
-# Generate two random numbers
-randNum = generateRandomInt()
-print(randNum)
+# Bind to a port
+s.bind(('localhost', 12345))
 
-# Generate two random numbers
-randNumTwo = generateRandomInt()
-print(randNumTwo)
+# Listen for incoming connections
+s.listen(5)
 
-randNumThree = generateRandomInt()
-print(randNumThree)
+print("Waiting for connection...")
 
-randNumFour = moisutreDetection()
-print(randNumFour)
- 
-# next create a socket object 
-s = socket.socket()         
-print ("Socket successfully created")
+while True:
+    # Accept a connection from a client
+    c, addr = s.accept()
+    print("Connection from", addr)
 
-# reserve a port on your computer in our 
-# case it is 12345 but it can be anything 
-port = 12345            
+    try:
+        # Generate and send moisture value
+        moisture = random.randint(1, 2)
+        print("Moisture:", moisture)
+        c.send(struct.pack('>i', moisture))
+        
+        # Send random numbers for 1 seconds
+        start_time = time.time()
+        while time.time() - start_time < 1:
+            # Generate random numbers
+            randNum = generateRandomInt()
+            randNumTwo = generateRandomInt()
+            randNumThree = generateRandomInt()
 
-# Next bind to the port 
-# we have not typed any ip in the ip field 
-# instead we have inputted an empty string 
-# this makes the server listen to requests 
-# coming from other computers on the network 
-s.bind(('', port))         
-print ("socket binded to %s" %(port)) 
+            # Pack the random numbers in big-endian format (4 bytes each for integers)
+            message = struct.pack('>iii', randNum, randNumTwo, randNumThree)
+            c.send(message)
 
-# put the socket into listening mode 
-s.listen(5)     
-print ("socket is listening")         
-
-# a forever loop until we interrupt it or 
-# an error occurs 
-while True: 
-
-# Establish connection with client. 
-    c, addr = s.accept()     
-    print ('Got connection from', addr )
- 
-# Send the random number as bytes
-    c.send(bytes(str(randNum) + '\n', 'utf-8'))
- 
-# Send the random number as bytes
-    c.send(bytes(str(randNumTwo) + '\n', 'utf-8'))
+            # Wait for a short while before sending the next set of random numbers
+            time.sleep(1)
     
-# Send the random number as bytes
-    c.send(bytes(str(randNumThree) + '\n', 'utf-8'))
-    
-# Send the random number as bytes
-    c.send(bytes(str(randNumFour), 'utf-8'))
-
-# Close the connection with the client 
-    c.close()
-
-# Breaking once connection closed
-    break
+    except ConnectionResetError:
+        # Client disconnected
+        print("Client disconnected")
+        c.close()
