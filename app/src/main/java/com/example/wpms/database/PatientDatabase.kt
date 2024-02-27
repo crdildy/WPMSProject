@@ -8,14 +8,17 @@ import com.example.wpms.model.Patient
 import com.example.wpms.model.Caregiver
 import com.example.wpms.model.Device
 import com.example.wpms.model.Breach
+import com.example.wpms.model.History
 
 
-@Database(entities = [Patient::class, Caregiver::class, Device::class, Breach::class], version = 1)
+@Database(entities = [Patient::class, Caregiver::class, Device::class, Breach::class, History::class], version = 1)
 abstract class PatientDatabase: RoomDatabase() {
     abstract fun getPatientDao(): PatientDao
     abstract fun getCaregiverDao(): CaregiverDao
     abstract fun getDeviceDao(): DeviceDao
     abstract fun getBreachDao(): BreachDao
+
+    abstract fun getHistoryDao(): HistoryDao
 
     companion object{
         @Volatile

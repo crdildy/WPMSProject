@@ -7,8 +7,10 @@ import androidx.room.PrimaryKey
 data class Device(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
+    val patientID: Int,
     val deviceId: Int,
     val status: Boolean,
     val numbOfPressureBreaches: Int,
-    val numOfMoistureBreaches: Int
+    val numOfMoistureBreaches: Int,
+
 )
