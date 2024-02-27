@@ -1,8 +1,9 @@
-package com.example.wpms
+package com.example.wpms.home_activities
 
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.wpms.R
 
 class CaregiverHomeActivity: AppCompatActivity() {
 

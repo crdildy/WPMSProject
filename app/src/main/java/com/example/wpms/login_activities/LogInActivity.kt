@@ -1,13 +1,14 @@
-package com.example.wpms.LogInActivities
+package com.example.wpms.login_activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.wpms.CaregiverHomeActivity
+import androidx.core.content.ContextCompat
+import com.example.wpms.home_activities.CaregiverHomeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.example.wpms.MainActivity
+import com.example.wpms.R
 //import com.example.wpms.PatientHomeActivity
 import com.example.wpms.databinding.ActivityLogInBinding
 
@@ -22,7 +23,7 @@ class LogInActivity : AppCompatActivity() {
         binding = ActivityLogInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.newUserSignup.setOnClickListener{
+        binding.signUpButton.setOnClickListener{
             val intentNewUser = Intent(this, SignUpActivity::class.java)
             startActivity(intentNewUser)
         }
@@ -53,15 +54,17 @@ class LogInActivity : AppCompatActivity() {
             }
         }
 
-        binding.ToggleModes.setOnClickListener {
+        binding.medButton.setOnClickListener {
             isCaregiverMode = !isCaregiverMode
             if (isCaregiverMode) {
                 //Handling caregiver mode
-                binding.ToggleModes.text = "Caregiver Mode"
+                val medLogoDrawable = ContextCompat.getDrawable(this, R.drawable.med_logo)
+                binding.medButton.background = medLogoDrawable
                 //direct to caregiver homescreen
             } else {
                 //Handles patient mode
-                binding.ToggleModes.text = "Patient Mode"
+                val patientLogoDrawable = ContextCompat.getDrawable(this, R.drawable.patient_logo)
+                binding.medButton.background = patientLogoDrawable
                 //direct to patient homescreen
             }
         }

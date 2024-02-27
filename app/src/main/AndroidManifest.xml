@@ -19,11 +19,11 @@
             android:exported="false"/>
 
         <activity
-            android:name=".CaregiverHomeActivity"
+            android:name=".home_activities.PatientHomeActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".LogInActivities.LogInActivity"
+            android:name=".login_activities.LogInActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,7 +32,7 @@
         </activity>
 
         <activity
-            android:name=".LogInActivities.SignUpActivity"
+            android:name=".login_activities.SignUpActivity"
             android:exported="false" />
 
     </application>
