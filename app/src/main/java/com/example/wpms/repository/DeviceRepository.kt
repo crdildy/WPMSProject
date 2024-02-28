@@ -1,7 +1,7 @@
 package com.example.wpms.repository
 
-import com.example.wpms.database.PatientDatabase
-import com.example.wpms.model.Device
+import com.example.wpms.Model.PatientDatabase
+import com.example.wpms.Entities.Device
 class DeviceRepository(private val db: PatientDatabase){
 
     suspend fun insertDevice(device: Device) = db.getDeviceDao().insertDevice(device)

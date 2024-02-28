@@ -44,6 +44,7 @@ class LogInActivity : AppCompatActivity() {
                         }
                         else{
                             //Treating main activity as our patient homepage for the time being
+                            //Need to change to direct to Patient Homepage after testing
                             val patientHome = Intent(this, MainActivity::class.java)
                             startActivity(patientHome)
                         }

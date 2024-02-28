@@ -1,4 +1,4 @@
-package com.example.wpms.model
+package com.example.wpms.Entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

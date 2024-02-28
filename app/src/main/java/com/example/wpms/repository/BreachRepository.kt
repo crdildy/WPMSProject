@@ -1,8 +1,8 @@
 package com.example.wpms.repository
 
 
-import com.example.wpms.database.PatientDatabase
-import com.example.wpms.model.Breach
+import com.example.wpms.Model.PatientDatabase
+import com.example.wpms.Entities.Breach
 class BreachRepository(private val db: PatientDatabase) {
     suspend fun insertBreach(breach: Breach) = db.getBreachDao().insertBreach(breach)
     suspend fun updateBreach(breach: Breach) = db.getBreachDao().updateBreach(breach)
