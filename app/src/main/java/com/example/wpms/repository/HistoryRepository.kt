@@ -1,10 +1,7 @@
 package com.example.wpms.repository
 
-import androidx.lifecycle.LiveData
-import androidx.room.Delete
-import androidx.room.Query
-import com.example.wpms.database.PatientDatabase
-import com.example.wpms.model.History
+import com.example.wpms.Model.PatientDatabase
+import com.example.wpms.Entities.History
 class HistoryRepository(private val db: PatientDatabase) {
 
     suspend fun insertHistory(history: History) = db.getHistoryDao().insertHistory(history)

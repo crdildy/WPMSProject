@@ -16,7 +16,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
+import com.example.wpms.Entities.PressureData
+import com.example.wpms.Model.PressureDB
+import com.example.wpms.Model.PressureDataViewModel
+import com.example.wpms.Model.PressureDataViewModelFactory
+import com.example.wpms.repository.PressureDataRepo
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -27,23 +33,31 @@ import java.nio.ByteOrder
 var mediaPlayer : MediaPlayer? = null
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var pressureDataViewModel: PressureDataViewModel
+    private lateinit var pressureDB: PressureDB //declare db instance for pressure
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //initialize Room database
-        db = Room.databaseBuilder(
+        //initialize Room database for pressure
+         pressureDB = Room.databaseBuilder(
             applicationContext,
-            AppDatabase::class.java, "patient_data_db"
+            PressureDB::class.java, "pressure_db"
         ).build()
 
+        //initialize the pressure data view model
+        val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
+        pressureDataViewModel =
+            ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
+                .get(PressureDataViewModel::class.java)
+
+        //displaying incoming data from simulation
         val textView = findViewById<View>(R.id.textView1) as TextView
         val textView2 = findViewById<View>(R.id.textView2) as TextView
         val textView3 = findViewById<View>(R.id.textView3) as TextView
         val textView4 = findViewById<View>(R.id.textView4) as TextView
         val textView5 = findViewById<View>(R.id.textView5) as TextView
         val textView6 = findViewById<View>(R.id.textView6) as TextView
-
         // Initialization variables to store TCP random pressure and moisture values
         var pressureOneVal = ""
         var pressureTwoVal = ""
@@ -88,6 +102,13 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, "Values updated", Toast.LENGTH_SHORT)
                             .show()
                     }
+                    //insert pressure values into pressureDB
+                    val pressureData = PressureData(
+                        pressureValue = pressureOneVal.trim().toFloat(),
+                        timestamp = System.currentTimeMillis()
+                    )
+                    insertPressureDataIntoDB(pressureData)
+
                 } catch (e: Exception) {
                     // Handle any exceptions, such as socket errors
                     withContext(Dispatchers.Main) {
@@ -98,24 +119,13 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                     }
                 }
-
-            //Insert received data into Room database
-                val patientData = PatientData(
-                    pressureLeft = pressureOneVal.trim().toInt(),
-                    pressureRight = pressureTwoVal.trim().toInt(),
-                    pressureCenter = pressureTwoVal.trim().toInt(),
-
-                    moisture = moistureVal.trim().toInt()
-                )
-                insertDataIntoDB(patientData)
             }
         }
     }
-}
-
-private fun <PatientData> insertDataIntoDB(patientData: PatientData){
-    GlobalScope.launch(Dispatchers.IO) {
-        db.patientDataDao().insert(patientData)
+    private fun insertPressureDataIntoDB(pressureData: PressureData){
+        GlobalScope.launch(Dispatchers.IO) {
+            pressureDB.pressureDataDao().insert(pressureData)
+        }
     }
 }
 
@@ -178,7 +188,6 @@ fun clientTCP(): List<String> {
         // Close the socket
         socket.close()
     }
-
     return dataList
 }
 

@@ -1,7 +1,7 @@
 package com.example.wpms.repository
 
-import com.example.wpms.database.PatientDatabase
-import com.example.wpms.model.Caregiver
+import com.example.wpms.Model.PatientDatabase
+import com.example.wpms.Entities.Caregiver
 
 
 class CaregiverRepository(private val db: PatientDatabase) {
