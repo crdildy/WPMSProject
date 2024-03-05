@@ -9,4 +9,6 @@ class PressureDataRepo(private val pressureDataDao: PressureDataDao) {
     }
 
     suspend fun getAllPressureData() = pressureDataDao.getAllPressureData()
+
+    suspend fun getPressureByPatientId(query: Long) = pressureDataDao.getPressureByPatientId(query)
 }
