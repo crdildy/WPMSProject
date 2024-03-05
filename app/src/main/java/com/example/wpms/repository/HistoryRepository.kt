@@ -1,6 +1,6 @@
 package com.example.wpms.repository
 
-import com.example.wpms.Model.PatientDatabase
+import com.example.wpms.DAOs.PatientDatabase
 import com.example.wpms.Entities.History
 class HistoryRepository(private val db: PatientDatabase) {
 
