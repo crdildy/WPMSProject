@@ -1,4 +1,4 @@
-package com.example.wpms.DAOs
+package com.example.wpms.Model
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -7,7 +7,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.wpms.Entities.Caregiver
 
 @Dao
 interface CaregiverDao {
@@ -20,9 +19,9 @@ interface CaregiverDao {
         @Delete
         suspend fun deleteCaregiver(caregiver: Caregiver)
 
-        @Query("SELECT * FROM CAREGIVERS ORDER BY id DESC")
+        @Query("SELECT * FROM caregivers_table ORDER BY id DESC")
         fun getAllCaregivers(): LiveData<List<Caregiver>>
 
-        @Query("SELECT * FROM CAREGIVERS WHERE medicalId LIKE :query OR id LIKE :query")
+        @Query("SELECT * FROM caregivers_table WHERE medicalId LIKE :query OR id LIKE :query")
         fun searchCaregiver(query: Int?): LiveData<List<Caregiver>>
 }

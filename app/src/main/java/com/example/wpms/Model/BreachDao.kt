@@ -1,4 +1,4 @@
-package com.example.wpms.DAOs
+package com.example.wpms.Model
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -7,7 +7,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.wpms.Entities.Breach
 
 @Dao
 interface BreachDao {
@@ -21,9 +20,9 @@ interface BreachDao {
         @Delete
         suspend fun deleteBreach(breach: Breach)
 
-        @Query("SELECT * FROM BREACHES ORDER BY id DESC")
+        @Query("SELECT * FROM breaches_table ORDER BY id DESC")
         fun getAllBreaches(): LiveData<List<Breach>>
 
-        @Query("SELECT * FROM BREACHES WHERE time LIKE :query OR date LIKE :query")
+        @Query("SELECT * FROM breaches_table WHERE time LIKE :query OR date LIKE :query")
         fun searchBreach(query: Int?): LiveData<List<Breach>>
 }

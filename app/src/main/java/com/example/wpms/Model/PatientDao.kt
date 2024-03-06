@@ -1,4 +1,4 @@
-package com.example.wpms.DAOs
+package com.example.wpms.Model
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -7,7 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.wpms.Entities.Patient
+
 @Dao
 interface PatientDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -19,10 +19,10 @@ interface PatientDao {
     @Delete
     suspend fun deletePatient(patient: Patient)
 
-    @Query("SELECT * FROM PATIENTS ORDER BY id DESC")
+    @Query("SELECT * FROM patients_table ORDER BY id DESC")
     fun getAllPatients(): LiveData<List<Patient>>
 
-    @Query("SELECT * FROM PATIENTS WHERE firstName LIKE :query OR lastName LIKE :query")
+    @Query("SELECT * FROM patients_table WHERE firstName LIKE :query OR lastName LIKE :query")
     fun searchPatient(query: String?): LiveData<List<Patient>>
 
 }

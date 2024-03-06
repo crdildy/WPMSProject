@@ -1,4 +1,4 @@
-package com.example.wpms.DAOs
+package com.example.wpms.Model
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -7,7 +7,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.wpms.Entities.Device
 
 @Dao
 interface DeviceDao {
@@ -20,9 +19,9 @@ interface DeviceDao {
     @Delete
     suspend fun deleteDevice(device: Device)
 
-    @Query("SELECT * FROM DEVICES ORDER BY id DESC")
+    @Query("SELECT * FROM devices_table ORDER BY id DESC")
     fun getAllDevices(): LiveData<List<Device>>
 
-    @Query("SELECT * FROM DEVICES WHERE id LIKE :query OR deviceId LIKE :query")
+    @Query("SELECT * FROM devices_table WHERE id LIKE :query OR deviceId LIKE :query")
     fun searchDevice(query: Int?): LiveData<List<Device>>
 }

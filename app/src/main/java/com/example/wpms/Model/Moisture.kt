@@ -1,10 +1,10 @@
-package com.example.wpms.Entities
+package com.example.wpms.Model
 
 import androidx.room.PrimaryKey
 import androidx.room.Entity
 
-@Entity(tableName = "moisture_data")
-data class MoistureData(
+@Entity(tableName = "moisture_table")
+data class Moisture(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val moistureValue: Boolean,

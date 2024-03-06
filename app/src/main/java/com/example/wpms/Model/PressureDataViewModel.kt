@@ -3,12 +3,10 @@ package com.example.wpms.Model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.wpms.Entities.PressureData
-import com.example.wpms.repository.PressureDataRepo
 import kotlinx.coroutines.launch
 
-class PressureDataViewModel(private val repository: PressureDataRepo) : ViewModel() {
-    fun insertPressureData(pressureData: PressureData){
+class PressureDataViewModel(private val repository: PressureRepository) : ViewModel() {
+    fun insertPressureData(pressureData: Pressure){
         viewModelScope.launch {
             repository.insertPressureDao(pressureData)
         }
@@ -18,7 +16,7 @@ class PressureDataViewModel(private val repository: PressureDataRepo) : ViewMode
 }
 
 
-class PressureDataViewModelFactory(private val repository: PressureDataRepo) : ViewModelProvider.Factory {
+class PressureDataViewModelFactory(private val repository: PressureRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PressureDataViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

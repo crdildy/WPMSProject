@@ -1,14 +1,15 @@
-package com.example.wpms.Entities
+package com.example.wpms.Model
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-@Entity(tableName = "Caregivers")
-data class Caregiver(
+@Entity(tableName = "patients_table")
+data class Patient (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val firstName: String,
     val lastName: String,
-    val medicalId: Int,
     val dob : String,
     val email: String,
-    val numPatients: Int
+    val device_id: String,
+    val caregiver_id: String
 )

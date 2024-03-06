@@ -1,10 +1,7 @@
-package com.example.wpms.repository
-
-import com.example.wpms.DAOs.PatientDatabase
-import com.example.wpms.Entities.Caregiver
+package com.example.wpms.Model
 
 
-class CaregiverRepository(private val db: PatientDatabase) {
+class CaregiverRepository(private val db: WpmsDB) {
     suspend fun insertCaregiver(caregiver: Caregiver) = db.getCaregiverDao().insertCaregiver(caregiver)
     suspend fun deleteCaregiver(caregiver: Caregiver) = db.getCaregiverDao().deleteCaregiver(caregiver)
     suspend fun updateCaregiver(caregiver: Caregiver) = db.getCaregiverDao().updateCaregiver(caregiver)

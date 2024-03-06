@@ -16,13 +16,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
-import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
-import com.example.wpms.Entities.PressureData
-import com.example.wpms.Model.PressureDB
-import com.example.wpms.Model.PressureDataViewModel
-import com.example.wpms.Model.PressureDataViewModelFactory
-import com.example.wpms.repository.PressureDataRepo
+import com.example.wpms.Model.WpmsDB
+import com.example.wpms.Model.Pressure
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -33,23 +29,24 @@ import java.nio.ByteOrder
 var mediaPlayer : MediaPlayer? = null
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var pressureDataViewModel: PressureDataViewModel
-    private lateinit var pressureDB: PressureDB //declare db instance for pressure
+//    private lateinit var pressureDataViewModel: PressureDataViewModel
+    //instance of our WPMS database
+    private lateinit var wpmsDB: WpmsDB
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         //initialize Room database for pressure
-         pressureDB = Room.databaseBuilder(
+         wpmsDB = Room.databaseBuilder(
             applicationContext,
-            PressureDB::class.java, "pressure_db"
+            WpmsDB::class.java, "wpms_db"
         ).build()
 
         //initialize the pressure data view model
-        val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
-        pressureDataViewModel =
-            ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
-                .get(PressureDataViewModel::class.java)
+//        val pressureRepository = PressureRepository(pressureDB.pressureDataDao())
+//        pressureDataViewModel =
+//            ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
+//                .get(PressureDataViewModel::class.java)
 
         //displaying incoming data from simulation
         val textView = findViewById<View>(R.id.textView1) as TextView
@@ -86,7 +83,11 @@ class MainActivity : AppCompatActivity() {
                         textView2.text = "Pressure level on sensor one: $pressureOneVal"
                         textView3.text = "Pressure level on sensor two: $pressureTwoVal"
                         textView4.text = "Pressure level on sensor three: $pressureThreeVal"
-                        if(pressureOneVal.trim().toInt() > pressureThreshold || pressureTwoVal.trim().toInt() > pressureThreshold || pressureThreeVal.trim().toInt() > pressureThreshold) {
+                        if (pressureOneVal.trim()
+                                .toInt() > pressureThreshold || pressureTwoVal.trim()
+                                .toInt() > pressureThreshold || pressureThreeVal.trim()
+                                .toInt() > pressureThreshold
+                        ) {
                             textView5.text = "Pressure Levels Exceede Threshold!"
                             //playAudio()
                             //Toast.makeText(applicationContext, "Audio started playing",Toast.LENGTH_LONG).show()
@@ -102,10 +103,10 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, "Values updated", Toast.LENGTH_SHORT)
                             .show()
                     }
-                    //insert pressure values into pressureDB
-                    val pressureData = PressureData(
-                        pressureValue = pressureOneVal.trim().toFloat(),
-                        timestamp = System.currentTimeMillis()
+                    //insert pressure values into pressure table of DB
+                    val pressureData = Pressure(
+                        pressureValue = pressureOneVal,
+//                        timestamp = System.currentTimeMillis()
                     )
                     insertPressureDataIntoDB(pressureData)
 
@@ -122,108 +123,110 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun insertPressureDataIntoDB(pressureData: PressureData){
+
+    private fun insertPressureDataIntoDB(pressureData: Pressure) {
         GlobalScope.launch(Dispatchers.IO) {
-            pressureDB.pressureDataDao().insert(pressureData)
+            wpmsDB.getPressureDao().insert(pressureData)
         }
     }
-}
 
-fun clientTCP(): List<String> {
-    // Define the server address and port
-    val serverAddress = "10.0.2.2"
-    val port = 12345
+    fun clientTCP(): List<String> {
+        // Define the server address and port
+        val serverAddress = "10.0.2.2"
+        val port = 12345
 
-    val dataList = mutableListOf<String>()
+        val dataList = mutableListOf<String>()
 
-    // Create a socket to connect to the server
-    val socket = Socket()
-
-    try {
-        // Set a timeout of 1 second
-        socket.soTimeout = 1000
-
-        // Connect to the server
-        socket.connect(InetSocketAddress(serverAddress, port), 1000)
-
-        // Receive data from the server
-        val inputStream = socket.getInputStream()
+        // Create a socket to connect to the server
+        val socket = Socket()
 
         try {
-            // Receive moisture value
-            val moistureData = inputStream.readBytesFully(4)
-            val moisture = ByteBuffer.wrap(moistureData).order(ByteOrder.BIG_ENDIAN).int
-            println("Moisture: $moisture")
-            dataList.add("Moisture: $moisture")
+            // Set a timeout of 1 second
+            socket.soTimeout = 1000
 
-            while (true) {
-                // Receive random numbers
-                val randNumData = inputStream.readBytesFully(4)
-                val randNumTwoData = inputStream.readBytesFully(4)
-                val randNumThreeData = inputStream.readBytesFully(4)
+            // Connect to the server
+            socket.connect(InetSocketAddress(serverAddress, port), 1000)
 
-                val randNum = ByteBuffer.wrap(randNumData).order(ByteOrder.BIG_ENDIAN).int
-                val randNumTwo = ByteBuffer.wrap(randNumTwoData).order(ByteOrder.BIG_ENDIAN).int
-                val randNumThree = ByteBuffer.wrap(randNumThreeData).order(ByteOrder.BIG_ENDIAN).int
+            // Receive data from the server
+            val inputStream = socket.getInputStream()
 
-                println("Random Numbers: $randNum, $randNumTwo, $randNumThree")
-                dataList.add("$randNum")
-                dataList.add("$randNumTwo")
-                dataList.add("$randNumThree")
+            try {
+                // Receive moisture value
+                val moistureData = inputStream.readBytesFully(4)
+                val moisture = ByteBuffer.wrap(moistureData).order(ByteOrder.BIG_ENDIAN).int
+                println("Moisture: $moisture")
+                dataList.add("Moisture: $moisture")
+
+                while (true) {
+                    // Receive random numbers
+                    val randNumData = inputStream.readBytesFully(4)
+                    val randNumTwoData = inputStream.readBytesFully(4)
+                    val randNumThreeData = inputStream.readBytesFully(4)
+
+                    val randNum = ByteBuffer.wrap(randNumData).order(ByteOrder.BIG_ENDIAN).int
+                    val randNumTwo = ByteBuffer.wrap(randNumTwoData).order(ByteOrder.BIG_ENDIAN).int
+                    val randNumThree =
+                        ByteBuffer.wrap(randNumThreeData).order(ByteOrder.BIG_ENDIAN).int
+
+                    println("Random Numbers: $randNum, $randNumTwo, $randNumThree")
+                    dataList.add("$randNum")
+                    dataList.add("$randNumTwo")
+                    dataList.add("$randNumThree")
+                }
+            } catch (e: IOException) {
+                // Handle IO exceptions
+                println("Error reading data: ${e.message}")
+            } finally {
+                // Close the input stream
+                inputStream.close()
             }
+        } catch (e: SocketTimeoutException) {
+            // Handle socket timeout exception
+            println("Connection timed out: ${e.message}")
         } catch (e: IOException) {
-            // Handle IO exceptions
-            println("Error reading data: ${e.message}")
+            // Handle other IO exceptions
+            println("Error connecting to server: ${e.message}")
         } finally {
-            // Close the input stream
-            inputStream.close()
+            // Close the socket
+            socket.close()
         }
-    } catch (e: SocketTimeoutException) {
-        // Handle socket timeout exception
-        println("Connection timed out: ${e.message}")
-    } catch (e: IOException) {
-        // Handle other IO exceptions
-        println("Error connecting to server: ${e.message}")
-    } finally {
-        // Close the socket
-        socket.close()
+        return dataList
     }
-    return dataList
-}
 
-fun InputStream.readBytesFully(size: Int): ByteArray {
-    // Create a buffer to store the read bytes
-    val buffer = ByteArray(size)
-    // Track the total number of bytes read
-    var read = 0
-    // Continue reading until we have read `size` bytes
-    while (read < size) {
-        // Read bytes into the buffer, starting at the current position
-        val bytesRead = this.read(buffer, read, size - read)
-        // Check if we reached the end of the stream
-        if (bytesRead == -1) {
-            // If so, throw an exception
-            throw IllegalStateException("Stream ended before reading $size bytes")
+    fun InputStream.readBytesFully(size: Int): ByteArray {
+        // Create a buffer to store the read bytes
+        val buffer = ByteArray(size)
+        // Track the total number of bytes read
+        var read = 0
+        // Continue reading until we have read `size` bytes
+        while (read < size) {
+            // Read bytes into the buffer, starting at the current position
+            val bytesRead = this.read(buffer, read, size - read)
+            // Check if we reached the end of the stream
+            if (bytesRead == -1) {
+                // If so, throw an exception
+                throw IllegalStateException("Stream ended before reading $size bytes")
+            }
+            // Update the total number of bytes read
+            read += bytesRead
         }
-        // Update the total number of bytes read
-        read += bytesRead
-    }
-    // Return the read bytes
-    return buffer
-}
-
-fun playAudio() {
-    val audioURL = "https://raw.githubusercontent.com/crdildy/WPMSProject/main/AlarmSound/beep-warning-6387.mp3"
-
-    mediaPlayer = MediaPlayer()
-    mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
-    try {
-        mediaPlayer!!.setDataSource(audioURL)
-        mediaPlayer!!.prepare()
-        mediaPlayer!!.start()
-
-    } catch (e : IOException) {
-        e.printStackTrace()
+        // Return the read bytes
+        return buffer
     }
 
+    fun playAudio() {
+        val audioURL =
+            "https://raw.githubusercontent.com/crdildy/WPMSProject/main/AlarmSound/beep-warning-6387.mp3"
+
+        mediaPlayer = MediaPlayer()
+        mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        try {
+            mediaPlayer!!.setDataSource(audioURL)
+            mediaPlayer!!.prepare()
+            mediaPlayer!!.start()
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
 }
