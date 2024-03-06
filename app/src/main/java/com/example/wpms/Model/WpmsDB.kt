@@ -8,7 +8,11 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 
-@Database(entities = [Patient::class, Caregiver::class, Device::class, Breach::class, Pressure::class, Moisture::class], version = 2)
+@Database(
+    entities = [Patient::class, Caregiver::class, Device::class, Breach::class, Pressure::class, Moisture::class],
+    version = 2,
+    autoMigrationsEnabled = true
+)
 abstract class WpmsDB: RoomDatabase() {
 
     abstract fun getPatientDao(): PatientDao
@@ -18,18 +22,24 @@ abstract class WpmsDB: RoomDatabase() {
     abstract fun getPressureDao(): PressureDao
     abstract fun getMoistureDao(): MoistureDao
     companion object{
-        private const val OLD_version = 1
-        private const val NEW_version = 2
+//        private const val OLD_version = 1
+//        private const val NEW_version = 2
 
-        private val MIGRATION_1_2: Migration = object : Migration(OLD_version, NEW_version){
-            override fun migrate(db: SupportSQLiteDatabase) {
-                TODO("Not yet implemented")
-//                example of how to update the tables
-//                db.execSQL("ALTER TABLE YourTable ADD COLUMN newColumn TEXT")
-                db.execSQL("ALTER TABLE patients_table ADD COLUMN id INT")
-
-            }
-        }
+//        private val MIGRATION_1_2: Migration = object : Migration(OLD_version, NEW_version){
+//            override fun migrate(db: SupportSQLiteDatabase) {
+//                TODO("Not yet implemented")
+////                example of how to update the tables
+////                db.execSQL("ALTER TABLE YourTable ADD COLUMN newColumn TEXT")
+////                db.execSQL("ALTER TABLE patients_table ADD COLUMN id INT")
+//                db.execSQL("ALTER TABLE patients_table" +
+//                        "ADD COLUMN patient_id INTEGER," +
+//                        "ADD COLUMN first_name TEXT," +
+//                        "ADD COLUMN last_name TEXT," +
+//                        "ADD COLUMN patient_id INT," +
+//                        "ADD COLUMN patient_id INT,")
+//
+//            }
+//        }
         @Volatile
         private var instance: WpmsDB? = null
         private val LOCK = Any()

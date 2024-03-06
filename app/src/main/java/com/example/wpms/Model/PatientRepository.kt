@@ -7,5 +7,5 @@ class PatientRepository(private val db: WpmsDB){
     suspend fun updatePatient(patient: Patient) = db.getPatientDao().updatePatient(patient)
 
     fun getAllPatients() = db.getPatientDao().getAllPatients()
-    fun searchPatient(query: String?) = db.getPatientDao().searchPatient(query)
+//    fun searchPatient(query: String?) = db.getPatientDao().searchPatient(query)
 }

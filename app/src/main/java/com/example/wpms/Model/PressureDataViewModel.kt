@@ -8,11 +8,11 @@ import kotlinx.coroutines.launch
 class PressureDataViewModel(private val repository: PressureRepository) : ViewModel() {
     fun insertPressureData(pressureData: Pressure){
         viewModelScope.launch {
-            repository.insertPressureDao(pressureData)
+            repository.insertPressure(pressureData)
         }
     }
 
-    suspend fun getAllPressureData() = repository.getAllPressureData()
+    suspend fun getAllPressureData() = repository.getAllPressure()
 }
 
 

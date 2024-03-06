@@ -7,5 +7,5 @@ class CaregiverRepository(private val db: WpmsDB) {
     suspend fun updateCaregiver(caregiver: Caregiver) = db.getCaregiverDao().updateCaregiver(caregiver)
 
     fun getAllCaregivers() = db.getCaregiverDao().getAllCaregivers()
-    fun searchCaregiver(query: Int?) = db.getCaregiverDao().searchCaregiver(query)
+//    fun searchCaregiver(query: Int?) = db.getCaregiverDao().searchCaregiver(query)
 }

@@ -20,9 +20,9 @@ interface BreachDao {
         @Delete
         suspend fun deleteBreach(breach: Breach)
 
-        @Query("SELECT * FROM breaches_table ORDER BY id DESC")
+        @Query("SELECT * FROM breaches_table ORDER BY device_id DESC")
         fun getAllBreaches(): LiveData<List<Breach>>
 
-        @Query("SELECT * FROM breaches_table WHERE time LIKE :query OR date LIKE :query")
-        fun searchBreach(query: Int?): LiveData<List<Breach>>
+//        @Query("SELECT * FROM breaches_table WHERE time LIKE :query OR date LIKE :query")
+//        fun searchBreach(query: Int?): LiveData<List<Breach>>
 }

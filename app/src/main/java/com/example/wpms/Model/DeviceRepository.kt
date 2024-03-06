@@ -7,5 +7,5 @@ class DeviceRepository(private val db: WpmsDB){
     suspend fun updateDevice(device: Device) = db.getDeviceDao().updateDevice(device)
 
     fun getAllDevices() = db.getDeviceDao().getAllDevices()
-    fun searchDevices(query: Int?) = db.getDeviceDao().searchDevice(query)
+//    fun searchDevices(query: Int?) = db.getDeviceDao().searchDevice(query)
 }

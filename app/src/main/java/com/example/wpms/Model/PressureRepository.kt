@@ -1,11 +1,8 @@
 package com.example.wpms.Model
 
-class PressureRepository(private val pressureDataDao: PressureDao) {
-    suspend fun insertPressureDao(pressureData: Pressure){
-        pressureDataDao.insert(pressureData)
-    }
-
-    suspend fun getAllPressureData() = pressureDataDao.getAllPressureData()
-
-//    suspend fun getPressureByPatientId(query: Long) = pressureDataDao.getPressureByPatientId(query)
+class PressureRepository(private val db: WpmsDB) {
+    suspend fun insertPressure(pressure: Pressure) = db.getPressureDao().insertPressure(pressure)
+    suspend fun deletePressure(pressure: Pressure) = db.getPressureDao().deletePressure(pressure)
+    suspend fun updatePressure(pressure: Pressure) = db.getPressureDao().updatePressure(pressure)
+    suspend fun getAllPressure() = db.getPressureDao().getAllPressureData()
 }

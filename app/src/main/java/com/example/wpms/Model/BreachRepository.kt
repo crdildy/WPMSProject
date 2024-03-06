@@ -8,5 +8,5 @@ class BreachRepository(private val db: WpmsDB) {
 
     fun getAllBreaches() = db.getBreachDao().getAllBreaches()
 
-    fun searchBreach(query: Int?) = db.getBreachDao().searchBreach(query)
+//    fun searchBreach(query: Int?) = db.getBreachDao().searchBreach(query)
 }

@@ -19,10 +19,10 @@ interface PatientDao {
     @Delete
     suspend fun deletePatient(patient: Patient)
 
-    @Query("SELECT * FROM patients_table ORDER BY id DESC")
+    @Query("SELECT * FROM patients_table ORDER BY patient_id DESC")
     fun getAllPatients(): LiveData<List<Patient>>
 
-    @Query("SELECT * FROM patients_table WHERE firstName LIKE :query OR lastName LIKE :query")
-    fun searchPatient(query: String?): LiveData<List<Patient>>
+//    @Query("SELECT * FROM patients_table WHERE firstName LIKE :query OR lastName LIKE :query")
+//    fun searchPatient(query: String?): LiveData<List<Patient>>
 
 }

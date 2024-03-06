@@ -19,9 +19,9 @@ interface DeviceDao {
     @Delete
     suspend fun deleteDevice(device: Device)
 
-    @Query("SELECT * FROM devices_table ORDER BY id DESC")
+    @Query("SELECT * FROM devices_table ORDER BY device_id DESC")
     fun getAllDevices(): LiveData<List<Device>>
 
-    @Query("SELECT * FROM devices_table WHERE id LIKE :query OR deviceId LIKE :query")
-    fun searchDevice(query: Int?): LiveData<List<Device>>
+//    @Query("SELECT * FROM devices_table WHERE id LIKE :query OR deviceId LIKE :query")
+//    fun searchDevice(query: Int?): LiveData<List<Device>>
 }

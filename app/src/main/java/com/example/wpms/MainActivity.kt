@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     //insert pressure values into pressure table of DB
                     val pressureData = Pressure(
-                        pressureValue = pressureOneVal,
+                        pressureValue = pressureOneVal.toInt(),
 //                        timestamp = System.currentTimeMillis()
                     )
                     insertPressureDataIntoDB(pressureData)

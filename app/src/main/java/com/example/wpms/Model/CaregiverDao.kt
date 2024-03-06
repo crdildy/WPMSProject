@@ -19,9 +19,9 @@ interface CaregiverDao {
         @Delete
         suspend fun deleteCaregiver(caregiver: Caregiver)
 
-        @Query("SELECT * FROM caregivers_table ORDER BY id DESC")
+        @Query("SELECT * FROM caregivers_table ORDER BY caregiver_id DESC")
         fun getAllCaregivers(): LiveData<List<Caregiver>>
 
-        @Query("SELECT * FROM caregivers_table WHERE medicalId LIKE :query OR id LIKE :query")
-        fun searchCaregiver(query: Int?): LiveData<List<Caregiver>>
+//        @Query("SELECT * FROM caregivers_table WHERE medicalId LIKE :query OR id LIKE :query")
+//        fun searchCaregiver(query: Int?): LiveData<List<Caregiver>>
 }
