@@ -96,7 +96,7 @@ class PatientHomeActivity : AppCompatActivity() {
                 0f,
                 260f,
                 false,
-                style = Stroke(35.dp.toPx(), cap = StrokeCap.Round),
+                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
             )
 
@@ -109,7 +109,7 @@ class PatientHomeActivity : AppCompatActivity() {
                 0f,
                 pressurePercentage,
                 false,
-                style = Stroke(35.dp.toPx(), cap = StrokeCap.Round),
+                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
             )
 
