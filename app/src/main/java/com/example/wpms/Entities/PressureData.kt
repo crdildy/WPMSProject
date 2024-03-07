@@ -9,7 +9,6 @@ import androidx.room.ForeignKey
     //parent column is used for the foreign entiity id, child column is used for THIS entity id
     //add ", onDelete = CASCADE, onUpdate = CASCADE"
     ForeignKey(entity = Patient::class, parentColumns = ["id"], childColumns = ["patientId"]),
-    ForeignKey(entity = Caregiver::class, parentColumns = ["id"], childColumns = ["caregiverId"]),
 ])
 data class PressureData(
     val pressureValue: Float,
