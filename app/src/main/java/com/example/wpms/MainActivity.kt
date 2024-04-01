@@ -103,11 +103,11 @@ class MainActivity : AppCompatActivity() {
                             .show()
                     }
                     //insert pressure values into pressureDB
-                    val pressureData = PressureData(
-                        pressureValue = pressureOneVal.trim().toFloat(),
-                        timestamp = System.currentTimeMillis()
-                    )
-                    insertPressureDataIntoDB(pressureData)
+//                    val pressureData = PressureData(
+//                        pressureValue = pressureOneVal.trim().toFloat(),
+//                        timestamp = System.currentTimeMillis()
+//                    )
+//                    insertPressureDataIntoDB(pressureData)
 
                 } catch (e: Exception) {
                     // Handle any exceptions, such as socket errors
