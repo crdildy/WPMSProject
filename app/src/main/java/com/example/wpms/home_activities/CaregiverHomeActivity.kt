@@ -46,22 +46,6 @@ class CaregiverHomeActivity : AppCompatActivity() {
             // Remember to import CustomProgressBar composable function if it's not in the same package
             CustomProgressBar(pressureVal)
         }
-        // Find the testPressure EditText
-        val testPressureEditText = findViewById<EditText>(R.id.testPressure)
-
-        // Find the button associated with updating pressure
-        val updatePressureButton = findViewById<Button>(R.id.updatePressureButton)
-
-        // Set click listener for the button
-        updatePressureButton.setOnClickListener {
-            val test = testPressureEditText.text.toString()
-            if (test.isNotEmpty()) {
-                pressureUpdate(test.toFloat())
-            } else {
-                // Handle the case where the EditText is empty
-            }
-        }
-
 
     }
     fun pressureUpdate(pressure: Float){

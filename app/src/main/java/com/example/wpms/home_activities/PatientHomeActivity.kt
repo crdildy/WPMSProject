@@ -32,10 +32,17 @@ import com.example.wpms.databinding.ActivityPatientHomeBinding
 import kotlin.math.cos
 import kotlin.math.log
 import kotlin.math.sin
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+
 
 class PatientHomeActivity : AppCompatActivity() {
     private var pressureVal by mutableStateOf(1f)
     private lateinit var binding: ActivityPatientHomeBinding
+    lateinit var barChart: BarChart
+    lateinit var barDataSet: BarDataSet
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientHomeBinding.inflate(layoutInflater)
@@ -53,28 +60,12 @@ class PatientHomeActivity : AppCompatActivity() {
             // Remember to import CustomProgressBar composable function if it's not in the same package
             CustomProgressBar(pressureVal)
         }
-        // Find the testPressure EditText
-        val testPressureEditText = findViewById<EditText>(R.id.testPressure)
-
-        // Find the button associated with updating pressure
-        val updatePressureButton = findViewById<Button>(R.id.updatePressureButton)
-
-        // Set click listener for the button
-        updatePressureButton.setOnClickListener {
-            val test = testPressureEditText.text.toString()
-            if (test.isNotEmpty()) {
-                pressureUpdate(test.toFloat())
-            } else {
-                // Handle the case where the EditText is empty
-            }
-        }
-
-
     }
-    fun pressureUpdate(pressure: Float){
-        pressureVal = pressure
-        Log.d("PressureUpdate", "Pressure value updated: $pressureVal")
+
+    fun detectMoisture() {
+        return
     }
+
     @Preview
     @Composable
     fun ProgressBarPreview() {
