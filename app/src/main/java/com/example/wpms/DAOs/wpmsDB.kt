@@ -21,24 +21,39 @@ abstract class PatientDatabase: RoomDatabase() {
 
     abstract fun getHistoryDao(): HistoryDao
 
+    abstract fun getPressureDataDao(): PressureDataDao
+
+
     companion object{
         @Volatile
-        private var instance: PatientDatabase? = null
-        private val LOCK = Any()
+//        private var instance: PatientDatabase? = null
+//        private val LOCK = Any()
+//
+//        operator fun invoke(context: Context) = instance ?:
+//        synchronized(LOCK){
+//            instance ?:
+//            createDatabase(context).also{
+//                instance = it
+//            }
+        private var INSTANCE: PatientDatabase? = null
 
-        operator fun invoke(context: Context) = instance ?:
-        synchronized(LOCK){
-            instance ?:
-            createDatabase(context).also{
-                instance = it
+        fun getDatabase(context: Context): PatientDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    PatientDatabase::class.java,
+                    "wpms_db"
+                ).build()
+                INSTANCE = instance
+                instance
             }
-        }
+      }
 
-        private fun createDatabase(context: Context) =
-            Room.databaseBuilder(
-                context.applicationContext,
-                PatientDatabase::class.java,
-                 "wpms_db"
-        ).build()
+//        private fun createDatabase(context: Context) =
+//            Room.databaseBuilder(
+//                context.applicationContext,
+//                PatientDatabase::class.java,
+//                 "wpms_db"
+//        ).build()
     }
 }

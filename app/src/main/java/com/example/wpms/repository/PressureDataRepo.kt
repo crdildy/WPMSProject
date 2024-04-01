@@ -2,9 +2,14 @@ package com.example.wpms.repository
 
 import com.example.wpms.DAOs.PressureDataDao
 import com.example.wpms.Entities.PressureData
+import kotlinx.coroutines.flow.Flow
+import com.example.wpms.DAOs.PatientDatabase
 
 class PressureDataRepo(private val pressureDataDao: PressureDataDao) {
-    suspend fun insertPressureDao(pressureData: PressureData){
+
+    val allPressure: Flow<List<PressureData>> = pressureDataDao.getAllPressureData()
+
+    suspend fun insert(pressureData: PressureData){
         pressureDataDao.insert(pressureData)
     }
 

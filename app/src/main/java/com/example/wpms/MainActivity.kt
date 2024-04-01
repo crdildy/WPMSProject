@@ -16,10 +16,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.room.Room
 import com.example.wpms.Entities.PressureData
-import com.example.wpms.Model.PressureDB
 import com.example.wpms.Model.PressureDataViewModel
 import com.example.wpms.Model.PressureDataViewModelFactory
 import com.example.wpms.repository.PressureDataRepo
@@ -33,23 +32,27 @@ import java.nio.ByteOrder
 var mediaPlayer : MediaPlayer? = null
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var pressureDataViewModel: PressureDataViewModel
-    private lateinit var pressureDB: PressureDB //declare db instance for pressure
+    //private lateinit var pressureDataViewModel: PressureDataViewModel
+    //private lateinit var pressureDB: PressureDB //declare db instance for pressure
+
+    private val pressureDataViewModel: PressureDataViewModel by viewModels {
+        PressureDataViewModelFactory((application as wpmsApplication).repository)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         //initialize Room database for pressure
-         pressureDB = Room.databaseBuilder(
-            applicationContext,
-            PressureDB::class.java, "pressure_db"
-        ).build()
+         //pressureDB = Room.databaseBuilder(
+          //  applicationContext,
+          //  PressureDB::class.java, "pressure_db"
+        //).build()
 
         //initialize the pressure data view model
-        val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
-        pressureDataViewModel =
-            ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
-                .get(PressureDataViewModel::class.java)
+        //val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
+        //pressureDataViewModel =
+      //      ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
+          //      .get(PressureDataViewModel::class.java)
 
         //displaying incoming data from simulation
         val textView = findViewById<View>(R.id.textView1) as TextView
@@ -103,11 +106,11 @@ class MainActivity : AppCompatActivity() {
                             .show()
                     }
                     //insert pressure values into pressureDB
-                    val pressureData = PressureData(
-                        pressureValue = pressureOneVal.trim().toFloat(),
-                        timestamp = System.currentTimeMillis()
-                    )
-                    insertPressureDataIntoDB(pressureData)
+                    //val pressureData = PressureData(
+                     //   pressureValue = pressureOneVal.trim().toFloat(),
+                     //   timestamp = System.currentTimeMillis()
+                    //)
+                    //insertPressureDataIntoDB(pressureData)
 
                 } catch (e: Exception) {
                     // Handle any exceptions, such as socket errors
@@ -122,11 +125,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun insertPressureDataIntoDB(pressureData: PressureData){
-        GlobalScope.launch(Dispatchers.IO) {
-            pressureDB.pressureDataDao().insert(pressureData)
-        }
-    }
+//    private fun insertPressureDataIntoDB(pressureData: PressureData){
+//        GlobalScope.launch(Dispatchers.IO) {
+//            //pressureDB.pressureDataDao().insert(pressureData)
+//        }
+//    }
 }
 
 fun clientTCP(): List<String> {
