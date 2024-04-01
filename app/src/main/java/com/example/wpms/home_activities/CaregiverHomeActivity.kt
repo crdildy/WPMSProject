@@ -2,6 +2,8 @@ package com.example.wpms.home_activities
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -27,8 +29,13 @@ import com.example.wpms.databinding.ActivityPatientHomeBinding
 
 
 class CaregiverHomeActivity : AppCompatActivity() {
-    private var pressureVal by mutableStateOf(1f)
     private lateinit var binding: ActivityPatientHomeBinding
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.navigation_menu, menu)
+        return true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientHomeBinding.inflate(layoutInflater)
@@ -44,22 +51,18 @@ class CaregiverHomeActivity : AppCompatActivity() {
         // Set content for ComposeView
         composeView.setContent {
             // Remember to import CustomProgressBar composable function if it's not in the same package
-            CustomProgressBar(pressureVal)
+            ProfilePictureHolder()
         }
 
     }
-    fun pressureUpdate(pressure: Float){
-        pressureVal = pressure
-        Log.d("PressureUpdate", "Pressure value updated: $pressureVal")
-    }
     @Preview
     @Composable
-    fun ProgressBarPreview() {
-        CustomProgressBar(pressureVal)
+    fun ProfilePicturePreview() {
+        ProfilePictureHolder()
     }
 
     @Composable
-    fun CustomProgressBar(pressurePercentage: Float = 1.0f) {
+    fun ProfilePictureHolder() {
         Canvas(
             modifier = Modifier
                 .size(150.dp)
@@ -67,27 +70,15 @@ class CaregiverHomeActivity : AppCompatActivity() {
                 .rotate(140f)
         ) {
             val radius = size.minDimension / 2
-            // Background Arc
-            drawArc(
-                color = Color(android.graphics.Color.parseColor("#90A4AE")),
-                0f,
-                260f,
-                false,
-                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
-                size = Size(size.width, size.height)
-            )
 
-            // Foreground Arc
-            drawArc(
-                brush = Brush.linearGradient(listOf(
-                    Color(android.graphics.Color.parseColor("#b8002a")),
-                    Color(android.graphics.Color.parseColor("#ff8200"))
-                )),
-                0f,
-                pressurePercentage,
-                false,
-                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
-                size = Size(size.width, size.height)
+            // Profile Picture
+            drawCircle(
+                color = Color.White,
+                radius =  radius - 25.dp.toPx(),
+            )
+            drawCircle(
+                color = Color.Gray,
+                radius = radius - 30.dp.toPx(),
             )
         }
     }

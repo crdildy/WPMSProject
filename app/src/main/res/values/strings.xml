@@ -7,4 +7,7 @@
     <string name="password">Password</string>
     <string name="new_user_sign_up">New User Sign Up</string>
     <string name="submit">Submit</string>
+    <string name="file">File</string>
+    <string name="create_new">Create new</string>
+    <string name="open">Open</string>
 </resources>

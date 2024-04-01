@@ -1,6 +1,7 @@
 package com.example.wpms.login_activities
 
 import com.example.wpms.home_activities.PatientHomeActivity
+import com.example.wpms.home_activities.CaregiverHomeActivity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -46,8 +47,16 @@ class SignUpActivity: AppCompatActivity() {
 
         //Test to patient activity
         binding.test.setOnClickListener{
+            Toast.makeText(this,"Patient", Toast.LENGTH_SHORT).show()
             val intentPatientTest = Intent(this, PatientHomeActivity::class.java)
             startActivity(intentPatientTest)
+        }
+
+        //Test to caregiver activity
+        binding.test2.setOnClickListener{
+            Toast.makeText(this,"Caregiver", Toast.LENGTH_SHORT).show()
+            val intentCaregiverTest = Intent(this, CaregiverHomeActivity::class.java)
+            startActivity(intentCaregiverTest)
         }
     }
 

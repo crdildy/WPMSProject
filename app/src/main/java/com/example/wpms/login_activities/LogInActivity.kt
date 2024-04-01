@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.wpms.home_activities.CaregiverHomeActivity
+import com.example.wpms.home_activities.PatientHomeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.example.wpms.MainActivity
 import com.example.wpms.R
@@ -15,7 +16,7 @@ import com.example.wpms.databinding.ActivityLogInBinding
 class LogInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLogInBinding
     private lateinit var firebaseAuth: FirebaseAuth
-    private var isCaregiverMode = false
+    private var isCaregiverMode = true
     //val toggleModeArea = findViewById<TextView>(R.id.ToggleModes)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +46,7 @@ class LogInActivity : AppCompatActivity() {
                         else{
                             //Treating main activity as our patient homepage for the time being
                             //Need to change to direct to Patient Homepage after testing
-                            val patientHome = Intent(this, MainActivity::class.java)
+                            val patientHome = Intent(this, PatientHomeActivity::class.java)
                             startActivity(patientHome)
                         }
                     } else {
@@ -57,11 +58,13 @@ class LogInActivity : AppCompatActivity() {
 
         binding.medButton.setOnClickListener {
             isCaregiverMode = !isCaregiverMode
+            Toast.makeText(this,isCaregiverMode.toString(), Toast.LENGTH_SHORT).show()
             if (isCaregiverMode) {
                 //Handling caregiver mode
                 val medLogoDrawable = ContextCompat.getDrawable(this, R.drawable.med_logo)
                 binding.medButton.background = medLogoDrawable
                 //direct to caregiver homescreen
+
             } else {
                 //Handles patient mode
                 val patientLogoDrawable = ContextCompat.getDrawable(this, R.drawable.patient_logo)
