@@ -16,6 +16,7 @@ interface PressureDataDao {
     @Query("SELECT * FROM pressure_data ORDER BY timestamp DESC")
     fun getAllPressureData(): Flow<List<PressureData>>
 
+    //will have to change livedata to flow
     @Query("SELECT * FROM pressure_data WHERE patientId = :patientId")
     suspend fun getPressureByPatientId(patientId: Long): LiveData<List<PressureData>>
 }

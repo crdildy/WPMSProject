@@ -11,7 +11,7 @@ import androidx.room.ForeignKey
     ForeignKey(entity = Patient::class, parentColumns = ["id"], childColumns = ["patientId"]),
 ])
 data class PressureData(
-    val pressureValue: Float,
+    val pressureValue: Double,
     val timestamp: Long,
     val patientId: Long
 

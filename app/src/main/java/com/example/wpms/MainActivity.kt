@@ -17,11 +17,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModelProvider
-import com.example.wpms.Entities.PressureData
-import com.example.wpms.Model.PressureDataViewModel
-import com.example.wpms.Model.PressureDataViewModelFactory
-import com.example.wpms.repository.PressureDataRepo
+import com.example.wpms.Model.PatientViewModel
+import com.example.wpms.Model.PatientViewModelFactory
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -35,12 +32,30 @@ class MainActivity : AppCompatActivity() {
     //private lateinit var pressureDataViewModel: PressureDataViewModel
     //private lateinit var pressureDB: PressureDB //declare db instance for pressure
 
-    private val pressureDataViewModel: PressureDataViewModel by viewModels {
-        PressureDataViewModelFactory((application as wpmsApplication).repository)
+    //private val pressureDataViewModel: PressureDataViewModel by viewModels {
+    //    PressureDataViewModelFactory((application as wpmsApplication).repository)
+    //}
+
+    private val patientViewModel: PatientViewModel by viewModels {
+        PatientViewModelFactory((application as wpmsApplication).repository)
     }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //connects recyclerview
+        //val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
+        //val adapter = PressureListAdapter()
+        //recyclerView.adapter = adapter
+        //ecyclerView.layoutManager = LinearLayoutManager(this)
+
+        //observes the live data in patient viewmodel
+//        PatientViewModel.allPressure.observe(owner = this) { pressures ->
+//            // Update the cached copy of the words in the adapter.
+//            pressures.let { adapter.submitList(it) }
+//        }
+
 
         //initialize Room database for pressure
          //pressureDB = Room.databaseBuilder(
