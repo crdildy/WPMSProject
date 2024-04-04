@@ -1,11 +1,13 @@
 package com.example.wpms.home_activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
@@ -50,8 +52,8 @@ class CaregiverHomeActivity : AppCompatActivity() {
             // Remember to import CustomProgressBar composable function if it's not in the same package
             ProfilePictureHolder()
         }
-
     }
+
     @Preview
     @Composable
     fun ProfilePicturePreview() {

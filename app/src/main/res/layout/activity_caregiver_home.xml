@@ -36,6 +36,12 @@
             android:orientation="vertical"
             android:padding="24dp">
 
+            <Button
+                android:id="@+id/addPatient"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add patient" />
+
             <TextView
                 android:id="@+id/SignUpText"
                 android:layout_width="match_parent"
