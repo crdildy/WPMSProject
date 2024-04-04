@@ -25,11 +25,11 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.wpms.R
-import com.example.wpms.databinding.ActivityPatientHomeBinding
+import com.example.wpms.databinding.ActivityCaregiverHomeBinding
 
 
 class CaregiverHomeActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityPatientHomeBinding
+    private lateinit var binding: ActivityCaregiverHomeBinding
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.navigation_menu, menu)
@@ -38,11 +38,8 @@ class CaregiverHomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityPatientHomeBinding.inflate(layoutInflater)
+        binding = ActivityCaregiverHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Set content view
-        setContentView(R.layout.activity_patient_home)
 
         // Find the ComposeView
         val composeView = findViewById<ComposeView>(R.id.composeView)
