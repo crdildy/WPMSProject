@@ -8,6 +8,7 @@ package com.example.wpms
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.Socket
@@ -16,9 +17,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
-import androidx.activity.viewModels
-import com.example.wpms.Model.PatientViewModel
-import com.example.wpms.Model.PatientViewModelFactory
+import androidx.room.Room
+import kotlinx.coroutines.flow.Flow
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -29,6 +29,7 @@ import java.nio.ByteOrder
 var mediaPlayer : MediaPlayer? = null
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var database: WPMSDatabase
     //private lateinit var pressureDataViewModel: PressureDataViewModel
     //private lateinit var pressureDB: PressureDB //declare db instance for pressure
 
@@ -36,9 +37,9 @@ class MainActivity : AppCompatActivity() {
     //    PressureDataViewModelFactory((application as wpmsApplication).repository)
     //}
 
-    private val patientViewModel: PatientViewModel by viewModels {
-        PatientViewModelFactory((application as wpmsApplication).repository)
-    }
+//    private val patientViewModel: PatientViewModel by viewModels {
+//        PatientViewModelFactory((application as WPMSApplication).repository)
+//    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +63,11 @@ class MainActivity : AppCompatActivity() {
           //  applicationContext,
           //  PressureDB::class.java, "pressure_db"
         //).build()
+        database = Room.databaseBuilder(
+            applicationContext,
+            WPMSDatabase::class.java,
+            "wpms_database"
+        ).build()
 
         //initialize the pressure data view model
         //val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
@@ -120,12 +126,28 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, "Values updated", Toast.LENGTH_SHORT)
                             .show()
                     }
-                    //insert pressure values into pressureDB
+                    insertPressure(pressureOneVal)
+//                        , pressureTwoVal, pressureThreeVal)
+                    val insertedData = checkDataFromDB()
+                    Log.d("MainActivity", "Inserted data: $insertedData")
+//                    insertedData.forEach { pressureData ->
+//                        Log.d("MainActivity", "Pressure: ${pressureData.pressure}")
+//                    }
+                //insert pressure values into pressureDB
                     //val pressureData = PressureData(
                      //   pressureValue = pressureOneVal.trim().toFloat(),
                      //   timestamp = System.currentTimeMillis()
                     //)
                     //insertPressureDataIntoDB(pressureData)
+
+                    //Printing out the data inserted
+                    coroutineScope.launch {
+                        database.getPressureDataDao().getAllPressureData().collect { pressureDataList ->
+                            pressureDataList.forEach { pressureData ->
+                                Log.d("MainActivity", "Inserted pressure: ${pressureData.pressure}")
+                            }
+                        }
+                    }
 
                 } catch (e: Exception) {
                     // Handle any exceptions, such as socket errors
@@ -140,11 +162,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-//    private fun insertPressureDataIntoDB(pressureData: PressureData){
-//        GlobalScope.launch(Dispatchers.IO) {
-//            //pressureDB.pressureDataDao().insert(pressureData)
-//        }
-//    }
+    private fun insertPressure(pressureData: String){
+        GlobalScope.launch(Dispatchers.IO) {
+            //pressureDB.pressureDataDao().insert(pressureData)
+            val pressureEntity = PressureData(pressure = pressureData)
+            database.getPressureDataDao().insertPressureData(pressureEntity)
+        }
+    }
+
+    private suspend fun checkDataFromDB(): Flow<List<PressureData>> {
+        return withContext(Dispatchers.IO){
+            database.getPressureDataDao().getAllPressureData()
+        }
+    }
+//private suspend fun checkDataFromDB(): Any {
+//    return database.getPressureDataDao().getAllPressureData()
+//}
+
 }
 
 fun clientTCP(): List<String> {

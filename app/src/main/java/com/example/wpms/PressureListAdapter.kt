@@ -7,7 +7,7 @@
 //import androidx.recyclerview.widget.DiffUtil
 //import androidx.recyclerview.widget.ListAdapter
 //import androidx.recyclerview.widget.RecyclerView
-//import com.example.wpms.Entities.PressureData
+//import com.example.wpms.PressureData
 //import com.example.wpms.R
 //
 ////fingers crossed pressureviewholder error will leave once implemented with no errors
