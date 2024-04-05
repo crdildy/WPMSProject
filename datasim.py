@@ -43,7 +43,7 @@ while True:
                 randNumThree = generateRandomInt()
                 message = struct.pack('>iii', randNum, randNumTwo, randNumThree)
                 c.send(message)
-                time.sleep(1)
+                time.sleep(2)
         else:
             print("Login failed")
 
