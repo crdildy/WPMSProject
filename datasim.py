@@ -24,7 +24,7 @@ while True:
 
     try:
         # Generate and send moisture value
-        moisture = random.randint(1, 2)
+        moisture = random.randint(0, 1)
         print("Moisture:", moisture)
         c.send(struct.pack('>i', moisture))
         
