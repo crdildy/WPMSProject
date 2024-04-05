@@ -150,6 +150,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    delay(2000)
 
                 } catch (e: Exception) {
                     // Handle any exceptions, such as socket errors
