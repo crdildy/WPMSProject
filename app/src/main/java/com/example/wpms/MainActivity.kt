@@ -25,6 +25,8 @@ import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import org.json.JSONObject
+
 
 var mediaPlayer : MediaPlayer? = null
 
@@ -63,11 +65,15 @@ class MainActivity : AppCompatActivity() {
           //  applicationContext,
           //  PressureDB::class.java, "pressure_db"
         //).build()
+
+
         database = Room.databaseBuilder(
             applicationContext,
             WPMSDatabase::class.java,
             "wpms_database"
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
+
 
         //initialize the pressure data view model
         //val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
@@ -83,10 +89,6 @@ class MainActivity : AppCompatActivity() {
         val textView5 = findViewById<View>(R.id.textView5) as TextView
         val textView6 = findViewById<View>(R.id.textView6) as TextView
         // Initialization variables to store TCP random pressure and moisture values
-        var pressureOneVal = ""
-        var pressureTwoVal = ""
-        var pressureThreeVal = ""
-        var moistureVal = ""
         val pressureThreshold = 65
 
         // Get a reference to the CoroutineScope
@@ -100,27 +102,27 @@ class MainActivity : AppCompatActivity() {
                     val dataList = clientTCP()
 
                     // Store the returned data
-                    pressureOneVal = " ${dataList.getOrNull(1)}"
-                    pressureTwoVal = " ${dataList.getOrNull(2)}"
-                    pressureThreeVal = " ${dataList.getOrNull(3)}"
-                    moistureVal = " ${dataList.getOrNull(0)}"
+                    var pressureOneVal = dataList.getOrNull(1) ?: 0
+                    var pressureTwoVal = dataList.getOrNull(2) ?: 0
+                    var pressureThreeVal = dataList.getOrNull(3) ?: 0
+                    var moistureVal = dataList.getOrNull(0) ?: 0
 
                     // Update the UI with the received data
                     withContext(Dispatchers.Main) {
                         textView2.text = "Pressure level on sensor one: $pressureOneVal"
                         textView3.text = "Pressure level on sensor two: $pressureTwoVal"
                         textView4.text = "Pressure level on sensor three: $pressureThreeVal"
-                        if(pressureOneVal.trim().toInt() > pressureThreshold || pressureTwoVal.trim().toInt() > pressureThreshold || pressureThreeVal.trim().toInt() > pressureThreshold) {
+                        if(pressureOneVal > pressureThreshold || pressureTwoVal > pressureThreshold || pressureThreeVal > pressureThreshold) {
                             textView5.text = "Pressure Levels Exceede Threshold!"
                             //playAudio()
                             //Toast.makeText(applicationContext, "Audio started playing",Toast.LENGTH_LONG).show()
                         } else {
                             textView5.text = "Pressure Levels are Okay!"
                         }
-                        textView6.text = if (moistureVal == "1") {
-                            "Moissture Detected: False"
+                        textView6.text = if (moistureVal == 1) {
+                            "Moisture Detected: True"
                         } else {
-                            "Moissture Detected: True"
+                            "Moisture Detected: False"
                         }
 
                         Toast.makeText(applicationContext, "Values updated", Toast.LENGTH_SHORT)
@@ -162,7 +164,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun insertPressure(pressureData: String){
+    private fun insertPressure(pressureData: Int){
         GlobalScope.launch(Dispatchers.IO) {
             //pressureDB.pressureDataDao().insert(pressureData)
             val pressureEntity = PressureData(pressure = pressureData)
@@ -181,12 +183,12 @@ class MainActivity : AppCompatActivity() {
 
 }
 
-fun clientTCP(): List<String> {
+fun clientTCP(): List<Int> {
     // Define the server address and port
     val serverAddress = "10.0.2.2"
     val port = 12345
 
-    val dataList = mutableListOf<String>()
+    val dataList = mutableListOf<Int>()
 
     // Create a socket to connect to the server
     val socket = Socket()
@@ -198,6 +200,14 @@ fun clientTCP(): List<String> {
         // Connect to the server
         socket.connect(InetSocketAddress(serverAddress, port), 1000)
 
+        // Send login confirmation message to the server
+        val loginConfirmation = JSONObject()
+        loginConfirmation.put("status", "logged_in")
+        val loginConfirmationMessage = loginConfirmation.toString()
+        val outputStream = socket.getOutputStream()
+        outputStream.write(loginConfirmationMessage.toByteArray())
+        outputStream.flush()
+
         // Receive data from the server
         val inputStream = socket.getInputStream()
 
@@ -206,7 +216,7 @@ fun clientTCP(): List<String> {
             val moistureData = inputStream.readBytesFully(4)
             val moisture = ByteBuffer.wrap(moistureData).order(ByteOrder.BIG_ENDIAN).int
             println("Moisture: $moisture")
-            dataList.add("Moisture: $moisture")
+            dataList.add(moisture)
 
             while (true) {
                 // Receive random numbers
@@ -219,9 +229,9 @@ fun clientTCP(): List<String> {
                 val randNumThree = ByteBuffer.wrap(randNumThreeData).order(ByteOrder.BIG_ENDIAN).int
 
                 println("Random Numbers: $randNum, $randNumTwo, $randNumThree")
-                dataList.add("$randNum")
-                dataList.add("$randNumTwo")
-                dataList.add("$randNumThree")
+                dataList.add(randNum)
+                dataList.add(randNumTwo)
+                dataList.add(randNumThree)
             }
         } catch (e: IOException) {
             // Handle IO exceptions
@@ -242,6 +252,7 @@ fun clientTCP(): List<String> {
     }
     return dataList
 }
+
 
 fun InputStream.readBytesFully(size: Int): ByteArray {
     // Create a buffer to store the read bytes
