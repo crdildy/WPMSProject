@@ -47,24 +47,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //connects recyclerview
-        //val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
-        //val adapter = PressureListAdapter()
-        //recyclerView.adapter = adapter
-        //ecyclerView.layoutManager = LinearLayoutManager(this)
 
         //observes the live data in patient viewmodel
 //        PatientViewModel.allPressure.observe(owner = this) { pressures ->
 //            // Update the cached copy of the words in the adapter.
 //            pressures.let { adapter.submitList(it) }
 //        }
-
-
-        //initialize Room database for pressure
-         //pressureDB = Room.databaseBuilder(
-          //  applicationContext,
-          //  PressureDB::class.java, "pressure_db"
-        //).build()
+        //initialize the pressure data view model
+        //val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
+        //pressureDataViewModel =
+        //      ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
+        //      .get(PressureDataViewModel::class.java)
 
 
         database = Room.databaseBuilder(
@@ -73,13 +66,6 @@ class MainActivity : AppCompatActivity() {
             "wpms_database"
         ).fallbackToDestructiveMigration()
             .build()
-
-
-        //initialize the pressure data view model
-        //val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
-        //pressureDataViewModel =
-      //      ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
-          //      .get(PressureDataViewModel::class.java)
 
         //displaying incoming data from simulation
         val textView = findViewById<View>(R.id.textView1) as TextView
@@ -112,7 +98,7 @@ class MainActivity : AppCompatActivity() {
                         textView2.text = "Pressure level on sensor one: $pressureOneVal"
                         textView3.text = "Pressure level on sensor two: $pressureTwoVal"
                         textView4.text = "Pressure level on sensor three: $pressureThreeVal"
-                        if(pressureOneVal > pressureThreshold || pressureTwoVal > pressureThreshold || pressureThreeVal > pressureThreshold) {
+                        if (pressureOneVal > pressureThreshold || pressureTwoVal > pressureThreshold || pressureThreeVal > pressureThreshold) {
                             textView5.text = "Pressure Levels Exceede Threshold!"
                             //playAudio()
                             //Toast.makeText(applicationContext, "Audio started playing",Toast.LENGTH_LONG).show()
@@ -128,28 +114,27 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, "Values updated", Toast.LENGTH_SHORT)
                             .show()
                     }
+                    Log.d("MainActivity", "Received pressureOneVal: $pressureOneVal")
                     insertPressure(pressureOneVal)
-//                        , pressureTwoVal, pressureThreeVal)
-                    val insertedData = checkDataFromDB()
-                    Log.d("MainActivity", "Inserted data: $insertedData")
+                    Log.d("MainActivity", "Received pressureOneVal: $pressureTwoVal")
+                    insertPressure(pressureTwoVal)
+                    Log.d("MainActivity", "Received pressureOneVal: $pressureThreeVal")
+                    insertPressure(pressureThreeVal)
+//                    val insertedData = checkDataFromDB()
+//                    Log.d("MainActivity", "Inserted data: $insertedData")
 //                    insertedData.forEach { pressureData ->
 //                        Log.d("MainActivity", "Pressure: ${pressureData.pressure}")
 //                    }
-                //insert pressure values into pressureDB
-                    //val pressureData = PressureData(
-                     //   pressureValue = pressureOneVal.trim().toFloat(),
-                     //   timestamp = System.currentTimeMillis()
-                    //)
-                    //insertPressureDataIntoDB(pressureData)
 
                     //Printing out the data inserted
-                    coroutineScope.launch {
-                        database.getPressureDataDao().getAllPressureData().collect { pressureDataList ->
-                            pressureDataList.forEach { pressureData ->
-                                Log.d("MainActivity", "Inserted pressure: ${pressureData.pressure}")
-                            }
-                        }
-                    }
+//                    coroutineScope.launch {
+//                        database.getPressureDataDao().getAllPressureData().collect { pressureDataList ->
+//                            pressureDataList.forEach { pressureData ->
+//                                Log.d("MainActivity", "Inserted pressure: ${pressureData.pressure}")
+//                            }
+//                        }
+//                    }
+                    checkDataFromDB()
                     delay(2000)
 
                 } catch (e: Exception) {
@@ -165,23 +150,27 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun insertPressure(pressureData: Int){
+
+    private fun insertPressure(pressureData: Int) {
         GlobalScope.launch(Dispatchers.IO) {
             //pressureDB.pressureDataDao().insert(pressureData)
-            val pressureEntity = PressureData(pressure = pressureData)
-            database.getPressureDataDao().insertPressureData(pressureEntity)
+            val pressureEntry = PressureData(pressure = pressureData)
+            Log.d("MainActivity", "insert pressure call with $pressureData")
+            database.getPressureDataDao().insertPressureData(pressureEntry)
         }
     }
 
-    private suspend fun checkDataFromDB(): Flow<List<PressureData>> {
-        return withContext(Dispatchers.IO){
-            database.getPressureDataDao().getAllPressureData()
+    private suspend fun checkDataFromDB() {
+//        return withContext(Dispatchers.IO){
+//            database.getPressureDataDao().getAllPressureData()
+//        }
+//        return withContext(Dispatchers.IO) {
+        database.getPressureDataDao().getAllPressureData().collect { pressureDataList ->
+            pressureDataList.forEach { pressureData ->
+                Log.d("MainActivity", "checkingDB pressure: ${pressureData.pressure}")
+            }
         }
     }
-//private suspend fun checkDataFromDB(): Any {
-//    return database.getPressureDataDao().getAllPressureData()
-//}
-
 }
 
 fun clientTCP(): List<Int> {

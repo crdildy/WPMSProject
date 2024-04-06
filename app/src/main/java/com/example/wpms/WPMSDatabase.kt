@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 
 //@Database(entities = [Patient::class, Caregiver::class, Device::class, Breach::class, PressureData::class, MoistureData::class], version = 1, exportSchema = false)
-@Database(entities = [PressureData::class], version = 1, exportSchema = false)
+@Database(entities = [PressureData::class], version = 2, exportSchema = false)
 public abstract class WPMSDatabase : RoomDatabase()
 {
     //Getters for all DAOs

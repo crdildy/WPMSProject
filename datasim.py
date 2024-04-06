@@ -39,8 +39,11 @@ while True:
             start_time = time.time()
             while time.time() - start_time < 1:
                 randNum = generateRandomInt()
+                print(randNum)
                 randNumTwo = generateRandomInt()
+                print(randNumTwo)
                 randNumThree = generateRandomInt()
+                print(randNumThree)
                 message = struct.pack('>iii', randNum, randNumTwo, randNumThree)
                 c.send(message)
                 time.sleep(2)

@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter
 @Entity(tableName = "pressure_data_table")
 data class PressureData(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
-    @ColumnInfo(name = "Pressure") var pressure: String
+    @ColumnInfo(name = "Pressure") var pressure: Int
 //    @ColumnInfo(name = "Date") var dateString: String?,
 //    @ColumnInfo(name = "Time") var timeString: String?
 //    @ColumnInfo("Patient ID") var patientId: Int = 0
