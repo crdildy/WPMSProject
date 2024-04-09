@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.wpms.R
 import com.example.wpms.databinding.ActivityCaregiverHomeBinding
+import com.example.wpms.menu_activities.PatientViewActivity
 
 
 class CaregiverHomeActivity : AppCompatActivity() {
@@ -42,6 +43,12 @@ class CaregiverHomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCaregiverHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.cardView.setOnClickListener{
+            Toast.makeText(this,"Patient List", Toast.LENGTH_SHORT).show()
+            val intentPatientList = Intent(this, PatientViewActivity::class.java)
+            startActivity(intentPatientList)
+        }
 
         // Find the ComposeView
         val composeView = findViewById<ComposeView>(R.id.composeView)
@@ -64,8 +71,7 @@ class CaregiverHomeActivity : AppCompatActivity() {
     fun ProfilePictureHolder() {
         Canvas(
             modifier = Modifier
-                .size(150.dp)
-                .padding(20.dp)
+                .size(250.dp)
                 .rotate(140f)
         ) {
             val radius = size.minDimension / 2

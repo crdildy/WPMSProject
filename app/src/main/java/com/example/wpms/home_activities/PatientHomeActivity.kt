@@ -2,15 +2,9 @@ package com.example.wpms.home_activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
-import android.widget.Button
-import android.widget.EditText
 import androidx.compose.ui.platform.ComposeView
 import com.example.wpms.R
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -25,24 +19,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import com.example.wpms.databinding.ActivityLogInBinding
 import com.example.wpms.databinding.ActivityPatientHomeBinding
-import kotlin.math.cos
-import kotlin.math.log
-import kotlin.math.sin
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.components.XAxis
 
 
 class PatientHomeActivity : AppCompatActivity() {
     private var pressureVal by mutableStateOf(1f)
     private lateinit var binding: ActivityPatientHomeBinding
-    lateinit var barChart: BarChart
-    lateinit var barDataSet: BarDataSet
+    private lateinit var barChart: BarChart
+    private lateinit var barDataSet: BarDataSet
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientHomeBinding.inflate(layoutInflater)
@@ -54,12 +44,68 @@ class PatientHomeActivity : AppCompatActivity() {
         // Find the ComposeView
         val composeView = findViewById<ComposeView>(R.id.composeView)
 
+        // Initialize BarChart
+        barChart = findViewById(R.id.barChart)
+        setupBarChart()
+
+        // Set pressure data
+        setPressureData()
 
         // Set content for ComposeView
         composeView.setContent {
             // Remember to import CustomProgressBar composable function if it's not in the same package
             CustomProgressBar(pressureVal)
         }
+    }
+
+    private fun setupBarChart() {
+        // Configure bar chart
+        barChart.description.isEnabled = false
+        barChart.setPinchZoom(false)
+        barChart.setDrawBarShadow(false)
+        barChart.setDrawGridBackground(false)
+
+        // Customize X-axis
+        val xAxis = barChart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+
+        // Customize Y-axis
+        val leftAxis = barChart.axisLeft
+        leftAxis.axisMinimum = 0f
+        leftAxis.setDrawGridLines(false)
+
+        // Disable right axis
+        barChart.axisRight.isEnabled = false
+    }
+
+    private fun setPressureData() {
+        // Sample pressure data for 3 hours
+        val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
+        val legend = barChart.legend
+        legend.isEnabled
+
+        // Prepare entries
+        val entries = ArrayList<BarEntry>()
+        for (i in pressureData.indices) {
+            entries.add(BarEntry(i.toFloat(), pressureData[i]))
+        }
+
+        // Create data set
+        barDataSet = BarDataSet(entries, "Pressure Data")
+
+        // Set Color for Bars
+        barDataSet.setColors(android.graphics.Color.BLUE, android.graphics.Color.GREEN, android.graphics.Color.YELLOW)
+
+        // Animate Bars
+        barChart.animateY(1500)
+
+        // Create BarData object and set data
+        val barData = BarData(barDataSet)
+        barChart.data = barData
+
+        // Refresh chart
+        barChart.invalidate()
     }
 
     fun detectMoisture() {

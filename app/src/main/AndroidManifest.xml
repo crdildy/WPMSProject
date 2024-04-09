@@ -23,6 +23,10 @@
             android:exported="false"/>
 
         <activity
+            android:name=".menu_activities.PatientViewActivity"
+            android:exported="false"/>
+
+        <activity
             android:name=".home_activities.PatientHomeActivity"
             android:exported="false"/>
 
