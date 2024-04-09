@@ -34,16 +34,13 @@ while True:
             moisture = random.randint(0, 1)
             print("Moisture:", moisture)
             c.send(struct.pack('>i', moisture))
-            
+
             # Send random numbers for 1 second
             start_time = time.time()
             while time.time() - start_time < 1:
                 randNum = generateRandomInt()
-                print(randNum)
                 randNumTwo = generateRandomInt()
-                print(randNumTwo)
                 randNumThree = generateRandomInt()
-                print(randNumThree)
                 message = struct.pack('>iii', randNum, randNumTwo, randNumThree)
                 c.send(message)
                 time.sleep(2)

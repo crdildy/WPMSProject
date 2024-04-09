@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 
 //@Database(entities = [Patient::class, Caregiver::class, Device::class, Breach::class, PressureData::class, MoistureData::class], version = 1, exportSchema = false)
-@Database(entities = [PressureData::class], version = 2, exportSchema = false)
+@Database(entities = [PressureData::class, MoistureData::class], version = 3, exportSchema = false)
 public abstract class WPMSDatabase : RoomDatabase()
 {
     //Getters for all DAOs
@@ -16,7 +16,7 @@ public abstract class WPMSDatabase : RoomDatabase()
 //    abstract fun getDeviceDao(): DeviceDao
 //    abstract fun getBreachDao(): BreachDao
     abstract fun getPressureDataDao(): PressureDataDao
-//    abstract fun getMoistureDataDao(): MoistureDataDao
+    abstract fun getMoistureDataDao(): MoistureDataDao
 
     companion object{
         @Volatile

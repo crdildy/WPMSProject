@@ -120,6 +120,9 @@ class MainActivity : AppCompatActivity() {
                     insertPressure(pressureTwoVal)
                     Log.d("MainActivity", "Received pressureOneVal: $pressureThreeVal")
                     insertPressure(pressureThreeVal)
+
+                    Log.d("MainActivity", "Received moistureVal:  $moistureVal")
+                    insertMoisture(moistureVal)
 //                    val insertedData = checkDataFromDB()
 //                    Log.d("MainActivity", "Inserted data: $insertedData")
 //                    insertedData.forEach { pressureData ->
@@ -160,6 +163,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun insertMoisture(moistureData: Int) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val moistureEntry = MoistureData(moisture = moistureData)
+            Log.d("MainActivity", "insert moisture call with $moistureData")
+            database.getMoistureDataDao().insertMoistureData(moistureEntry)
+        }
+    }
+
     private suspend fun checkDataFromDB() {
 //        return withContext(Dispatchers.IO){
 //            database.getPressureDataDao().getAllPressureData()
@@ -168,6 +179,12 @@ class MainActivity : AppCompatActivity() {
         database.getPressureDataDao().getAllPressureData().collect { pressureDataList ->
             pressureDataList.forEach { pressureData ->
                 Log.d("MainActivity", "checkingDB pressure: ${pressureData.pressure}")
+            }
+        }
+
+        database.getMoistureDataDao().getAllMoistureData().collect { moistureDataList ->
+            moistureDataList.forEach { moistureData ->
+                Log.d("MainActivity", "checkingDB moisture: ${moistureData.moisture}")
             }
         }
     }

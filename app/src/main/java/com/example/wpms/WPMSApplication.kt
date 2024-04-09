@@ -11,5 +11,6 @@ class WPMSApplication : Application(){
 
     private val database by lazy { WPMSDatabase.getDatabase(this) }
     val pressureRepository by lazy { PressureRepository(database.getPressureDataDao())}
+    val moistureRepository by lazy { MoistureDataRepository(database.getMoistureDataDao())}
     //Need a repository declared for each Entity
 }
