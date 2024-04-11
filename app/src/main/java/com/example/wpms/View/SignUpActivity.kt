@@ -1,7 +1,5 @@
-package com.example.wpms.login_activities
+package com.example.wpms.View
 
-import com.example.wpms.home_activities.PatientHomeActivity
-import com.example.wpms.home_activities.CaregiverHomeActivity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast

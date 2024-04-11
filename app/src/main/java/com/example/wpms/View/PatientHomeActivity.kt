@@ -1,4 +1,4 @@
-package com.example.wpms.home_activities
+package com.example.wpms.View
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

@@ -1,21 +1,20 @@
-package com.example.wpms.login_activities
+package com.example.wpms.View
 
+//import com.example.wpms.PatientHomeActivity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.wpms.home_activities.CaregiverHomeActivity
-import com.example.wpms.home_activities.PatientHomeActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.example.wpms.MainActivity
+import com.example.wpms.Model.FirebaseRepository
 import com.example.wpms.R
-//import com.example.wpms.PatientHomeActivity
 import com.example.wpms.databinding.ActivityLogInBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class LogInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLogInBinding
     private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var firebaseRepository: FirebaseRepository
     private var isCaregiverMode = true
     //val toggleModeArea = findViewById<TextView>(R.id.ToggleModes)
 
@@ -32,6 +31,7 @@ class LogInActivity : AppCompatActivity() {
         firebaseAuth = FirebaseAuth.getInstance()
         binding.logInButton.setOnClickListener {
             val user = binding.username.text.toString()
+            val userId = firebaseAuth.currentUser?.uid
             val pass = binding.password.text.toString()
 
             if (user.isNotEmpty() && pass.isNotEmpty()) {

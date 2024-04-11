@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"  />
     <application
+        android:name=".ApplicationClass"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,19 +20,23 @@
             android:exported="false"/>
 
         <activity
-            android:name=".home_activities.CaregiverHomeActivity"
+            android:name=".View.NewEditPatientActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".menu_activities.PatientViewActivity"
+            android:name=".View.CaregiverHomeActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".home_activities.PatientHomeActivity"
+            android:name=".View.PatientViewActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".login_activities.LogInActivity"
+            android:name=".View.PatientHomeActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".View.LogInActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,7 +45,7 @@
         </activity>
 
         <activity
-            android:name=".login_activities.SignUpActivity"
+            android:name=".View.SignUpActivity"
             android:exported="false" />
 
     </application>

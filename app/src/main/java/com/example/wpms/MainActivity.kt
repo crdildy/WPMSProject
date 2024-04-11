@@ -8,14 +8,11 @@ package com.example.wpms
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.net.Socket
-import kotlinx.coroutines.*
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.example.wpms.Entities.PressureData
@@ -23,9 +20,17 @@ import com.example.wpms.Model.PressureDB
 import com.example.wpms.Model.PressureDataViewModel
 import com.example.wpms.Model.PressureDataViewModelFactory
 import com.example.wpms.repository.PressureDataRepo
+import com.google.firebase.FirebaseApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetSocketAddress
+import java.net.Socket
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -37,6 +42,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pressureDB: PressureDB //declare db instance for pressure
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        FirebaseApp.initializeApp(this)
+
+        if (FirebaseApp.getApps(this).isNotEmpty()) {
+            Log.d("ApplicationClass", "Firebase initialized successfully")
+        } else {
+            Log.e("ApplicationClass", "Firebase initialization failed")
+        }
+
         setContentView(R.layout.activity_main)
 
         //initialize Room database for pressure

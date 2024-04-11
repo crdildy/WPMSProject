@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:composableName="com.example.wpms.home_activities.PatientHomeActivity.ProgressBarPreview" />
+        tools:composableName="com.example.wpms.View.PatientHomeActivity.ProgressBarPreview" />
 
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/barChart"
