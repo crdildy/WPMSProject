@@ -29,15 +29,14 @@ while True:
         login_data = json.loads(login_confirmation)
         if login_data['status'] == 'logged_in':
             print("Client logged in successfully")
-
-            # Generate and send moisture value
-            moisture = random.randint(0, 1)
-            print("Moisture:", moisture)
-            c.send(struct.pack('>i', moisture))
             
-            # Send random numbers for 1 second
-            start_time = time.time()
-            while time.time() - start_time < 1:
+            # Continuously send random numbers every 2 seconds
+            while True:
+                # Generate and send moisture value
+                moisture = random.randint(0, 1)
+                print("Moisture:", moisture)
+                c.send(struct.pack('>i', moisture))
+                
                 randNum = generateRandomInt()
                 randNumTwo = generateRandomInt()
                 randNumThree = generateRandomInt()
@@ -49,6 +48,8 @@ while True:
 
     except ConnectionResetError:
         print("Client disconnected")
+    except ConnectionAbortedError:
+        print("Connection aborted by the host")
     except json.JSONDecodeError:
         print("Invalid JSON received")
     finally:
