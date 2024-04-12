@@ -2,6 +2,7 @@ package com.example.wpms.View
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.ui.platform.ComposeView
 import com.example.wpms.R
 import androidx.compose.foundation.Canvas
@@ -20,26 +21,41 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
+import com.example.wpms.DataHandler
+import com.example.wpms.Model.FirebaseRepository
 import com.example.wpms.databinding.ActivityPatientHomeBinding
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.components.XAxis
+import java.sql.Timestamp
 
 
 class PatientHomeActivity : AppCompatActivity() {
+    //give patient activity a reference to Firebase Repo
+    private lateinit var firebaseRepository: FirebaseRepository
+    private lateinit var dataHandler: DataHandler
+    private lateinit var dataObserver: Observer<List<Int>>
+
     private var pressureVal by mutableStateOf(1f)
     private lateinit var binding: ActivityPatientHomeBinding
     private lateinit var barChart: BarChart
     private lateinit var barDataSet: BarDataSet
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        
         // Set content view
         setContentView(R.layout.activity_patient_home)
+
+        firebaseRepository = FirebaseRepository()
+        dataHandler = DataHandler(firebaseRepository)
+        observeData()
+        dataHandler.startDataRetrieval()
 
         // Find the ComposeView
         val composeView = findViewById<ComposeView>(R.id.composeView)
@@ -56,6 +72,27 @@ class PatientHomeActivity : AppCompatActivity() {
             // Remember to import CustomProgressBar composable function if it's not in the same package
             CustomProgressBar(pressureVal)
         }
+    }
+
+    private fun observeData() {
+        dataObserver = Observer { dataList ->
+            // Insert pressure data into Firestore
+            if (dataList.size >= 3) {
+                val deviceID = "your_device_id" // You need to define how you obtain the device ID
+                val pressure_center = dataList[0]
+                val pressure_left = dataList[1]
+                val pressure_right = dataList[2]
+                val timestamp = Timestamp(System.currentTimeMillis())
+
+                // Insert pressure data into Firestore
+                firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
+            } else {
+                Log.e("PatientHomeActivity", "Insufficient data received")
+            }
+        }
+
+        // Observe data changes
+        dataHandler.observeData().observe(this, dataObserver)
     }
 
     private fun setupBarChart() {
@@ -82,6 +119,15 @@ class PatientHomeActivity : AppCompatActivity() {
     private fun setPressureData() {
         // Sample pressure data for 3 hours
         val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
+
+        val deviceID = "Device ID 2"
+        val timestamp = Timestamp(System.currentTimeMillis())
+
+//        val pressureData
+        for(pressure in pressureData){
+//            firebaseRepository.insertPressureData(deviceID, pressure)
+        }
+
         val legend = barChart.legend
         legend.isEnabled
 

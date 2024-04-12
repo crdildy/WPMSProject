@@ -7,19 +7,16 @@ import androidx.room.RoomDatabase
 import com.example.wpms.Entities.Breach
 import com.example.wpms.Entities.Caregiver
 import com.example.wpms.Entities.Device
-import com.example.wpms.Entities.History
 import com.example.wpms.Entities.Patient
 import com.example.wpms.Entities.PressureData
 
-
-@Database(entities = [Patient::class, Caregiver::class, Device::class, Breach::class, History::class, PressureData::class], version = 1)
+//Room database, stored locally
+@Database(entities = [Patient::class, Caregiver::class, Device::class, Breach::class, PressureData::class], version = 1)
 abstract class PatientDatabase: RoomDatabase() {
     abstract fun getPatientDao(): PatientDao
     abstract fun getCaregiverDao(): CaregiverDao
     abstract fun getDeviceDao(): DeviceDao
     abstract fun getBreachDao(): BreachDao
-
-    abstract fun getHistoryDao(): HistoryDao
 
     companion object{
         @Volatile

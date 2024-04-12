@@ -11,23 +11,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
-import androidx.room.InvalidationTracker
-import androidx.room.Room
-import com.example.wpms.Entities.PressureData
-import com.example.wpms.Model.PressureDB
-import com.example.wpms.Model.PressureDataViewModel
-import com.example.wpms.Model.PressureDataViewModelFactory
-import com.example.wpms.repository.PressureDataRepo
 import com.google.firebase.FirebaseApp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -39,9 +24,9 @@ import androidx.lifecycle.Observer
 
 var mediaPlayer : MediaPlayer? = null
 
+//This class is being used for testing data simulation values
 class MainActivity : AppCompatActivity() {
 //    private lateinit var pressureDataViewModel: PressureDataViewModel
-//    private lateinit var pressureDB: PressureDB //declare Room db instance for pressure
     lateinit var dataHandler: DataHandler
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,16 +45,9 @@ class MainActivity : AppCompatActivity() {
 //            "pressure_db"
 //        ).fallbackToDestructiveMigration()
 //          .build()
-
-        //initialize the pressure data view model, do we need this here?
-//        val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
-//        pressureDataViewModel =
-//            ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
-//                .get(PressureDataViewModel::class.java)
-
         //Initialize the DataHandler & start data retrieval
-        dataHandler = DataHandler.getInstance()
-        dataHandler.startDataRetrieval()
+//        dataHandler = DataHandler.getInstance()
+//        dataHandler.startDataRetrieval()
         //displaying incoming data from simulation on activity_main.xml
         val textView = findViewById<View>(R.id.textView1) as TextView
         val textView2 = findViewById<View>(R.id.textView2) as TextView
