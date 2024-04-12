@@ -14,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.room.InvalidationTracker
 import androidx.room.Room
 import com.example.wpms.Entities.PressureData
 import com.example.wpms.Model.PressureDB
@@ -34,114 +35,80 @@ import java.net.Socket
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import androidx.lifecycle.Observer
 
 var mediaPlayer : MediaPlayer? = null
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var pressureDataViewModel: PressureDataViewModel
-    private lateinit var pressureDB: PressureDB //declare db instance for pressure
+//    private lateinit var pressureDataViewModel: PressureDataViewModel
+//    private lateinit var pressureDB: PressureDB //declare Room db instance for pressure
+    lateinit var dataHandler: DataHandler
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        setContentView(R.layout.activity_main)
+        //Initialize Firebase Firestore database
         FirebaseApp.initializeApp(this)
-
         if (FirebaseApp.getApps(this).isNotEmpty()) {
             Log.d("ApplicationClass", "Firebase initialized successfully")
         } else {
             Log.e("ApplicationClass", "Firebase initialization failed")
         }
+        //initialize Room database for pressure, Uncomment later if want to utilize Room for pressure locally
+//         pressureDB = Room.databaseBuilder(
+//            applicationContext,
+//            PressureDB::class.java,
+//            "pressure_db"
+//        ).fallbackToDestructiveMigration()
+//          .build()
 
-        setContentView(R.layout.activity_main)
+        //initialize the pressure data view model, do we need this here?
+//        val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
+//        pressureDataViewModel =
+//            ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
+//                .get(PressureDataViewModel::class.java)
 
-        //initialize Room database for pressure
-         pressureDB = Room.databaseBuilder(
-            applicationContext,
-            PressureDB::class.java, "pressure_db"
-        ).build()
-
-        //initialize the pressure data view model
-        val pressureRepository = PressureDataRepo(pressureDB.pressureDataDao())
-        pressureDataViewModel =
-            ViewModelProvider(this, PressureDataViewModelFactory(pressureRepository))
-                .get(PressureDataViewModel::class.java)
-
-        //displaying incoming data from simulation
+        //Initialize the DataHandler & start data retrieval
+        dataHandler = DataHandler.getInstance()
+        dataHandler.startDataRetrieval()
+        //displaying incoming data from simulation on activity_main.xml
         val textView = findViewById<View>(R.id.textView1) as TextView
         val textView2 = findViewById<View>(R.id.textView2) as TextView
         val textView3 = findViewById<View>(R.id.textView3) as TextView
         val textView4 = findViewById<View>(R.id.textView4) as TextView
         val textView5 = findViewById<View>(R.id.textView5) as TextView
         val textView6 = findViewById<View>(R.id.textView6) as TextView
-        // Initialization variables to store TCP random pressure and moisture values
-        var pressureOneVal = ""
-        var pressureTwoVal = ""
-        var pressureThreeVal = ""
-        var moistureVal = ""
         val pressureThreshold = 65
-
-        // Get a reference to the CoroutineScope
-        val coroutineScope = CoroutineScope(Dispatchers.IO)
-
-        // Works on the background off the app (If we don't have this, the app keeps crashing)
-        coroutineScope.launch {
-            while (isActive) {
-                try {
-                    // Calls TCP server connection
-                    val dataList = clientTCP()
-
-                    // Store the returned data
-                    pressureOneVal = " ${dataList.getOrNull(1)}"
-                    pressureTwoVal = " ${dataList.getOrNull(2)}"
-                    pressureThreeVal = " ${dataList.getOrNull(3)}"
-                    moistureVal = " ${dataList.getOrNull(0)}"
-
-                    // Update the UI with the received data
-                    withContext(Dispatchers.Main) {
-                        textView2.text = "Pressure level on sensor one: $pressureOneVal"
-                        textView3.text = "Pressure level on sensor two: $pressureTwoVal"
-                        textView4.text = "Pressure level on sensor three: $pressureThreeVal"
-                        if(pressureOneVal.trim().toInt() > pressureThreshold || pressureTwoVal.trim().toInt() > pressureThreshold || pressureThreeVal.trim().toInt() > pressureThreshold) {
-                            textView5.text = "Pressure Levels Exceede Threshold!"
-                            //playAudio()
-                            //Toast.makeText(applicationContext, "Audio started playing",Toast.LENGTH_LONG).show()
-                        } else {
-                            textView5.text = "Pressure Levels are Okay!"
-                        }
-                        textView6.text = if (moistureVal == "1") {
-                            "Moissture Detected: False"
-                        } else {
-                            "Moissture Detected: True"
-                        }
-
-                        Toast.makeText(applicationContext, "Values updated", Toast.LENGTH_SHORT)
-                            .show()
+        dataHandler.observeData().observe(this, Observer { dataList ->
+            Log.d("MainActivity", "Updating UI with data: $dataList")
+            // Update your UI here
+            if (dataList.isNotEmpty()) {
+                val moistureVal = dataList[0]
+                Log.d("MainActivity", "Moisture: $moistureVal")
+                val pressureOneVal = dataList.getOrNull(1) ?: 0
+                Log.d("MainActivity", "P1: $pressureOneVal")
+                val pressureTwoVal = dataList.getOrNull(2) ?: 0
+                Log.d("MainActivity", "P2: $pressureTwoVal")
+                val pressureThreeVal = dataList.getOrNull(3) ?: 0
+                Log.d("MainActivity", "P3: $pressureThreeVal")
+                // Update TextViews with the received data
+                textView2.text = "Pressure level on sensor one: $pressureOneVal"
+                textView3.text = "Pressure level on sensor two: $pressureTwoVal"
+                textView4.text = "Pressure level on sensor three: $pressureThreeVal"
+                textView5.text =
+                    if (pressureOneVal > pressureThreshold || pressureTwoVal > pressureThreshold || pressureThreeVal > pressureThreshold) {
+                        "Pressure Levels Exceed Threshold!"
+                        // You can also call playAudio() here if you want to play the alarm sound
+                    } else {
+                        "Pressure Levels are Okay!"
                     }
-                    //insert pressure values into pressureDB
-//                    val pressureData = PressureData(
-//                        pressureValue = pressureOneVal.trim().toFloat(),
-//                        timestamp = System.currentTimeMillis()
-//                    )
-//                    insertPressureDataIntoDB(pressureData)
-
-                } catch (e: Exception) {
-                    // Handle any exceptions, such as socket errors
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            applicationContext,
-                            "Error reading values: ${e.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                textView6.text = if (moistureVal == 1) {
+                    "Moisture Detected: True"
+                } else {
+                    "Moisture Detected: False"
                 }
             }
-        }
+        })
     }
-    private fun insertPressureDataIntoDB(pressureData: PressureData){
-        GlobalScope.launch(Dispatchers.IO) {
-            pressureDB.pressureDataDao().insert(pressureData)
-        }
-    }
-}
 
 fun clientTCP(): List<String> {
     // Define the server address and port
@@ -239,5 +206,6 @@ fun playAudio() {
     } catch (e : IOException) {
         e.printStackTrace()
     }
+}
 
 }
