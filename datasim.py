@@ -38,8 +38,11 @@ while True:
                 c.send(struct.pack('>i', moisture))
 
                 randNum = generateRandomInt()
+                print("Pressure Center:", randNum)
                 randNumTwo = generateRandomInt()
+                print("Pressure Left:", randNumTwo)
                 randNumThree = generateRandomInt()
+                print("Pressure Right:", randNumThree)
                 message = struct.pack('>iii', randNum, randNumTwo, randNumThree)
                 c.send(message)
                 time.sleep(2)

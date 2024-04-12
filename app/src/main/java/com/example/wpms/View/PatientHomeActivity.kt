@@ -79,10 +79,16 @@ class PatientHomeActivity : AppCompatActivity() {
             // Insert pressure data into Firestore
             if (dataList.size >= 3) {
                 val deviceID = "your_device_id" // You need to define how you obtain the device ID
-                val pressure_center = dataList[0]
-                val pressure_left = dataList[1]
-                val pressure_right = dataList[2]
+                val moisture = dataList[0]
+                Log.d("PatientHomeActivity", "moisture: $moisture")
+                val pressure_center = dataList[1]
+                Log.d("PatientHomeActivity", "Pressure Center: $pressure_center")
+                val pressure_left = dataList[2]
+                Log.d("PatientHomeActivity", "Pressure left: $pressure_left")
+                val pressure_right = dataList[3]
+                Log.d("PatientHomeActivity", "Pressure right: $pressure_right")
                 val timestamp = Timestamp(System.currentTimeMillis())
+                Log.d("PatientHomeActivity", "Timestamp: $timestamp")
 
                 // Insert pressure data into Firestore
                 firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)

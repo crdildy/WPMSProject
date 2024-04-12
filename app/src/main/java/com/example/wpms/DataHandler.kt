@@ -33,6 +33,7 @@ class DataHandler(repository: FirebaseRepository) {
     }
 
     fun startDataRetrieval() {
+        Log.d("DataHandler", "call to start data retrieval")
         coroutineScope.launch {
             try {
                 val dataList = clientTCP()
