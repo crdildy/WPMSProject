@@ -33,17 +33,17 @@ class NewEditPatientActivity : AppCompatActivity() {
             val name = nameEditText.text.toString().trim()
             val roomNumber = roomNumberPicker.value.toString()
 
-            if (name.isNotEmpty()) {
-                val userId = firebaseRepository.getCurrentUserId()
-                if (userId != null) {
-                    firebaseRepository.addPatient(userId, name, roomNumber)
-                    finish()
-                } else {
-                    // Handle the case where user is not logged in
-                }
-            } else {
-                // Handle the case where name is empty
-            }
+//            if (name.isNotEmpty()) {
+//                val userId = firebaseRepository.getCurrentUserId()
+//                if (userId != null) {
+//                    firebaseRepository.addUser(userId, name, roomNumber, role)
+//                    finish()
+//                } else {
+//                    // Handle the case where user is not logged in
+//                }
+//            } else {
+//                // Handle the case where name is empty
+//            }
         }
     }
 }
