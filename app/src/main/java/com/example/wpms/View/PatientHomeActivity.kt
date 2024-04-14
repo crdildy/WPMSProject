@@ -22,8 +22,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.example.wpms.DataHandler
 import com.example.wpms.Model.FirebaseRepository
+import com.example.wpms.ViewModel.PatientHomeActivityViewModel
+import com.example.wpms.ViewModel.ViewModelFactory
 import com.example.wpms.databinding.ActivityPatientHomeBinding
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
@@ -36,6 +39,8 @@ import java.sql.Timestamp
 class PatientHomeActivity : AppCompatActivity() {
     //give patient activity a reference to Firebase Repo
     private lateinit var firebaseRepository: FirebaseRepository
+    private lateinit var viewModel: PatientHomeActivityViewModel
+//    private lateinit var viewModel = ViewModelProvider()
     private lateinit var dataHandler: DataHandler
     private lateinit var dataObserver: Observer<List<Int>>
 
@@ -43,6 +48,7 @@ class PatientHomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPatientHomeBinding
     private lateinit var barChart: BarChart
     private lateinit var barDataSet: BarDataSet
+    private val pressureData = mutableListOf<Float>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +59,7 @@ class PatientHomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_patient_home)
 
         firebaseRepository = FirebaseRepository()
+        var viewModel = ViewModelProvider(this, ViewModelFactory(FirebaseRepository()))
         dataHandler = DataHandler(firebaseRepository)
         observeData()
         dataHandler.startDataRetrieval()
@@ -78,7 +85,7 @@ class PatientHomeActivity : AppCompatActivity() {
         dataObserver = Observer { dataList ->
             // Insert pressure data into Firestore
             if (dataList.size >= 3) {
-                val deviceID = "your_device_id" // You need to define how you obtain the device ID
+                val deviceID = "your_device_3" // You need to define how you obtain the device ID
                 val moisture = dataList[0]
                 Log.d("PatientHomeActivity", "moisture: $moisture")
                 val pressure_center = dataList[1]
@@ -90,8 +97,28 @@ class PatientHomeActivity : AppCompatActivity() {
                 val timestamp = Timestamp(System.currentTimeMillis())
                 Log.d("PatientHomeActivity", "Timestamp: $timestamp")
 
+                pressureData.add(pressure_center.toFloat())
+                pressureData.add(pressure_left.toFloat())
+                pressureData.add(pressure_right.toFloat())
                 // Insert pressure data into Firestore
+//                viewModel.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
                 firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
+
+//                val entries = ArrayList<BarEntry>()
+//                for (i in pressureData.indices) {
+//                    entries.add(BarEntry(i.toFloat(), pressureData[i]))
+//                }
+
+                // Update data set
+                barDataSet.addEntry(BarEntry(barDataSet.entryCount.toFloat(), pressure_center.toFloat()))
+//                barDataSet.clear()
+//                barDataSet.addAll(entries)
+//                barDataSet.label = "Pressure Data"
+
+                // Refresh chart
+                barChart.data.notifyDataChanged()
+                barChart.notifyDataSetChanged()
+                barChart.invalidate()
             } else {
                 Log.e("PatientHomeActivity", "Insufficient data received")
             }
@@ -122,26 +149,24 @@ class PatientHomeActivity : AppCompatActivity() {
         barChart.axisRight.isEnabled = false
     }
 
+    //Setting the pressure values on the charts
     private fun setPressureData() {
         // Sample pressure data for 3 hours
-        val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
-
+//        val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
+        val pressureData = mutableListOf<Int>()
         val deviceID = "Device ID 2"
         val timestamp = Timestamp(System.currentTimeMillis())
 
-//        val pressureData
-        for(pressure in pressureData){
-//            firebaseRepository.insertPressureData(deviceID, pressure)
-        }
+        dataHandler.observeData().observe(this, dataObserver)
 
         val legend = barChart.legend
         legend.isEnabled
 
         // Prepare entries
         val entries = ArrayList<BarEntry>()
-        for (i in pressureData.indices) {
-            entries.add(BarEntry(i.toFloat(), pressureData[i]))
-        }
+//        for (i in pressureData.indices) {
+//            entries.add(BarEntry(i.toFloat(), pressureData[i]))
+//        }
 
         // Create data set
         barDataSet = BarDataSet(entries, "Pressure Data")
