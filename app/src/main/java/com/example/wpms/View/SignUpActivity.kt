@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.wpms.Model.FirebaseRepository
 import com.example.wpms.databinding.ActivitySignUpBinding
 import com.google.firebase.auth.FirebaseAuth
+import android.util.Log
 
 //come to the sign up activity if user does not already have username and password
 //once user completes all the fields in sign up they will be directed back to the
@@ -62,8 +63,15 @@ class SignUpActivity: AppCompatActivity() {
             }
             if (name.isNotEmpty()) {
                 val userId = firebaseAuth.currentUser?.uid
+                Log.d("role", "role: $role")
                 if (userId != null) {
                     firebaseRepository.addUser(userId, name, roomNumber, role)
+                    if (role == "caregiver")
+                    {
+                        Log.d("if check", "inside loop")
+                        val devices = arrayOf<String>()
+                        firebaseRepository.addCaregiver(userId, name, devices)
+                    }
                     finish()
                 } else {
                     // Handle the case where user is not logged in

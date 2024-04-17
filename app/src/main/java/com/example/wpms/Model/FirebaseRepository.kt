@@ -11,25 +11,42 @@ class FirebaseRepository {
     private val patientsCollection = db.collection("users")
     private val pressureCollection = db.collection("pressure_data")
     private val moistureCollection = db.collection("moisture_data")
+    private val caregiverCollection = db.collection("caregivers")
     //add other collections here
 
-    fun insertMoistureData(userId: String, isMoist: Int, timestamp: Timestamp){
+    fun addCaregiver(userId: String, name: String, devices: Array<String>) {
+        val caregiverDataDocRef = caregiverCollection.document(userId)
+        val caregiver = hashMapOf(
+            "userId" to userId,
+            "name" to name,
+            "devices" to devices.toList() // Convert array to list
+        )
+
+        caregiverDataDocRef.set(caregiver)
+            .addOnSuccessListener {
+                println("Caregiver document successfully created/updated in Firestore for $userId")
+            }
+            .addOnFailureListener { e ->
+                println("Error creating/updating caregiver document in Firestore: $e")
+            }
+    }
+    fun insertMoistureData(deviceId: String, isMoist: Int, timestamp: Timestamp){
         //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
-        val moistureDataDocRef = moistureCollection.document(userId)
+        val moistureDataDocRef = moistureCollection.document(deviceId)
 
 
 
         //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
         //to the values of the corresponding passed parameters of the function
         val moistureData = hashMapOf(
-            "userId" to userId,
+            "deviceId" to deviceId,
             "isMoist" to isMoist,
             "timestamp" to timestamp
         )
 
         moistureDataDocRef.set(moistureData)
             .addOnSuccessListener {
-                println("MoistureData document created/updated in Firestore for user: $userId")
+                println("MoistureData document created/updated in Firestore for user: $deviceId")
             }
             .addOnFailureListener { e ->
                 println("Error creating/updating moistureDataq document in Firestore: $e")
