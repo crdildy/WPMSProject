@@ -50,6 +50,7 @@ class PatientHomeActivity : AppCompatActivity() {
     private lateinit var barDataSet: BarDataSet
     private val pressureData = mutableListOf<Float>()
 
+    private var isMoist by mutableStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientHomeBinding.inflate(layoutInflater)
@@ -100,10 +101,13 @@ class PatientHomeActivity : AppCompatActivity() {
                 pressureData.add(pressure_center.toFloat())
                 pressureData.add(pressure_left.toFloat())
                 pressureData.add(pressure_right.toFloat())
+
+                isMoist = moisture
                 // Insert pressure data into Firestore
 //                viewModel.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
                 firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
 
+                firebaseRepository.insertMoistureData(deviceID, moisture, timestamp)
 //                val entries = ArrayList<BarEntry>()
 //                for (i in pressureData.indices) {
 //                    entries.add(BarEntry(i.toFloat(), pressureData[i]))

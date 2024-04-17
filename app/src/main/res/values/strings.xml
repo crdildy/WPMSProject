@@ -10,4 +10,9 @@
     <string name="file">File</string>
     <string name="create_new">Create new</string>
     <string name="open">Open</string>
+    <string name="name">Name</string>
+    <string name="caregiver">Caregiver</string>
+    <string name="patient">Patient</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="confirm_password">Confirm Password</string>
 </resources>
