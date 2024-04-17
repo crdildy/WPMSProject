@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import kotlinx.coroutines.flow.Flow
 import java.io.IOException
@@ -125,28 +126,44 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 // Insert the pressure data into the database
+                Log.d("MainActivity", "Received pressureOneVal: $pressureOneVal")
                 insertPressure(pressureOneVal)
+                Log.d("MainActivity", "Received pressureOneVal: $pressureTwoVal")
+                insertPressure(pressureTwoVal)
+                Log.d("MainActivity", "Received pressureOneVal: $pressureThreeVal")
+                insertPressure(pressureThreeVal)
+
+                // Now calling checkDataFromDB from within a coroutine
+                lifecycleScope.launch {
+                    checkDataFromDB()
+                }
+
             }
         })
     }
 
-    private fun insertPressure(pressureData: Int){
-        GlobalScope.launch(Dispatchers.IO) {
-            //pressureDB.pressureDataDao().insert(pressureData)
-            val pressureEntity = PressureData(pressure = pressureData)
-            database.getPressureDataDao().insertPressureData(pressureEntity)
+    private fun insertPressure(pressureData: Int) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val pressureEntry = PressureData(pressure = pressureData)
+                database.getPressureDataDao().insertPressureData(pressureEntry)
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error inserting data", e)
+            }
         }
     }
 
-    private suspend fun checkDataFromDB(): Flow<List<PressureData>> {
-        return withContext(Dispatchers.IO){
-            database.getPressureDataDao().getAllPressureData()
+    private suspend fun checkDataFromDB() {
+//        return withContext(Dispatchers.IO){
+//            database.getPressureDataDao().getAllPressureData()
+//        }
+//        return withContext(Dispatchers.IO) {
+        database.getPressureDataDao().getAllPressureData().collect { pressureDataList ->
+            pressureDataList.forEach { pressureData ->
+                Log.d("MainActivity", "checkingDB pressure: ${pressureData.pressure}")
+            }
         }
     }
-//private suspend fun checkDataFromDB(): Any {
-//    return database.getPressureDataDao().getAllPressureData()
-//}
-
 }
 
 fun playAudio() {
