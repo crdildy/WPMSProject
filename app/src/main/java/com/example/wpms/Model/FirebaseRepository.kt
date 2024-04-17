@@ -9,8 +9,31 @@ class FirebaseRepository {
     private val db = FirebaseFirestore.getInstance()
     private val patientsCollection = db.collection("patients")
     private val pressureCollection = db.collection("pressure_data")
+    private val moistureCollection = db.collection("moisture_data")
     //add other collections here
 
+    fun insertMoistureData(userId: String, isMoist: Int, timestamp: Timestamp){
+        //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
+        val moistureDataDocRef = moistureCollection.document(userId)
+
+
+        //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
+        //to the values of the corresponding passed parameters of the function
+        val moistureData = hashMapOf(
+            "userId" to userId,
+            "isMoist" to isMoist,
+            "timestamp" to timestamp
+        )
+
+        moistureDataDocRef.set(moistureData)
+            .addOnSuccessListener {
+                println("MoistureData document created/updated in Firestore for user: $userId")
+            }
+            .addOnFailureListener { e ->
+                println("Error creating/updating moistureDataq document in Firestore: $e")
+            }
+
+    }
 
     //Patient collection methods
     fun addPatient(userId: String, name: String, roomNumber: String) {
