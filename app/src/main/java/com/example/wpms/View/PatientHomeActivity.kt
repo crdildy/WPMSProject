@@ -49,6 +49,7 @@ class PatientHomeActivity : AppCompatActivity() {
     private lateinit var barChart: BarChart
     private lateinit var barDataSet: BarDataSet
     private val pressureData = mutableListOf<Float>()
+    private val pressureThreshold by mutableStateOf(85)
 
     private var isMoist by mutableStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,6 +113,10 @@ class PatientHomeActivity : AppCompatActivity() {
 //                for (i in pressureData.indices) {
 //                    entries.add(BarEntry(i.toFloat(), pressureData[i]))
 //                }
+                var isPressureDetected = pressure_center > pressureThreshold || pressure_left > pressureThreshold || pressure_right > pressureThreshold
+                var isMoistDetected = isMoist == 1
+
+                firebaseRepository.insertBreach(deviceID, isMoistDetected, isPressureDetected, timestamp)
 
                 // Update data set
                 barDataSet.addEntry(BarEntry(barDataSet.entryCount.toFloat(), pressure_center.toFloat()))
