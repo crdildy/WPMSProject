@@ -104,8 +104,10 @@ class FirebaseRepository {
     }
 
     //Pressure collection methods
-    fun insertPressureData(deviceID: String, pressure_center: Int, pressure_left: Int, pressure_right: Int, timestamp: Timestamp){
-        val pressureDocRef = pressureCollection.document(deviceID)
+    fun insertPressureData(deviceID: String, pressure_center: Int, pressure_left: Int, pressure_right: Int, timestamp: Timestamp) {
+        // Generate a document ID that combines deviceID and timestamp for uniqueness
+        val documentId = "$deviceID-${timestamp.time}"
+
         val pressureData = hashMapOf(
             "deviceID" to deviceID,
             "pressure_center" to pressure_center,
@@ -113,9 +115,11 @@ class FirebaseRepository {
             "pressure_right" to pressure_right,
             "timestamp" to timestamp
         )
-        pressureDocRef.set(pressureData)
+
+        // Insert data as a new document in the pressure_data collection
+        pressureCollection.document(documentId).set(pressureData)
             .addOnSuccessListener {
-                println("Pressure document created/updated in Firestore for deviceID: $deviceID")
+                println("New pressure document created/updated in Firestore with ID: $documentId")
             }
             .addOnFailureListener { e ->
                 println("Error creating/updating pressure document in Firestore: $e")
@@ -130,6 +134,3 @@ class FirebaseRepository {
 
     }
 }
-
-
-
