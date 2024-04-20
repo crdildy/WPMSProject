@@ -1,5 +1,6 @@
 package com.example.wpms.Model
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.sql.Timestamp
@@ -7,28 +8,45 @@ import java.sql.Timestamp
 class FirebaseRepository {
 
     private val db = FirebaseFirestore.getInstance()
-    private val patientsCollection = db.collection("patients")
+    private val patientsCollection = db.collection("users")
     private val pressureCollection = db.collection("pressure_data")
     private val moistureCollection = db.collection("moisture_data")
     private val breachCollection = db.collection("breach_data")
-    //add other collections here
+    private val caregiverCollection = db.collection("caregivers")    //add other collections here
 
-    fun insertMoistureData(userId: String, isMoist: Int, timestamp: Timestamp){
+    fun addCaregiver(userId: String, name: String, devices: Array<String>) {
+        val caregiverDataDocRef = caregiverCollection.document(userId)
+        val caregiver = hashMapOf(
+            "userId" to userId,
+            "name" to name,
+            "devices" to devices.toList() // Convert array to list
+        )
+
+        caregiverDataDocRef.set(caregiver)
+            .addOnSuccessListener {
+                println("Caregiver document successfully created/updated in Firestore for $userId")
+            }
+            .addOnFailureListener { e ->
+                println("Error creating/updating caregiver document in Firestore: $e")
+            }
+    }
+    fun insertMoistureData(deviceId: String, isMoist: Int, timestamp: Timestamp){
         //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
-        val moistureDataDocRef = moistureCollection.document(userId)
+        val moistureDataDocRef = moistureCollection.document(deviceId)
+
 
 
         //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
         //to the values of the corresponding passed parameters of the function
         val moistureData = hashMapOf(
-            "userId" to userId,
+            "deviceId" to deviceId,
             "isMoist" to isMoist,
             "timestamp" to timestamp
         )
 
         moistureDataDocRef.set(moistureData)
             .addOnSuccessListener {
-                println("MoistureData document created/updated in Firestore for user: $userId")
+                println("MoistureData document created/updated in Firestore for user: $deviceId")
             }
             .addOnFailureListener { e ->
                 println("Error creating/updating moistureDataq document in Firestore: $e")
@@ -37,13 +55,14 @@ class FirebaseRepository {
     }
 
     //Patient collection methods
-    fun addPatient(userId: String, name: String, roomNumber: String) {
+    fun addUser(userId: String, name: String, roomNumber: String, role: String) {
         val patientDocRef = patientsCollection.document(userId)
 
         val patientData = hashMapOf(
             "userId" to userId,
             "name" to name,
-            "roomNumber" to roomNumber
+            "roomNumber" to roomNumber,
+            "role" to role
         )
 
         patientDocRef.set(patientData)
@@ -59,24 +78,28 @@ class FirebaseRepository {
         return FirebaseAuth.getInstance().currentUser?.uid
     }
 
-    fun getPatient(
-        onSuccess: (List<Patient>) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        patientsCollection.get()
-            .addOnSuccessListener { result ->
-                val patientList = mutableListOf<Patient>()
-                for (document in result) {
-                    val userId = document.id
-                    val name = document.getString("name") ?: ""
-                    val roomNumber = document.getString("roomNumber") ?: ""
-                    patientList.add(Patient(userId, name, roomNumber))
+    fun getUserRole(userId: String?, onSuccess: (String) -> Unit, onFailure: () -> Unit) {
+        Log.d("RepositoryData", "getUserRole function called")
+        val userDoc = userId?.let { db.collection("users").document(it) }
+        Log.d("RepositoryData", "User Document: $userDoc")
+        Log.d("RepositoryData", "User Document: $userId")
+
+        userDoc?.get()?.addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val userRole = documentSnapshot.getString("role")
+                Log.d("RepositoryData", "fetching userRole: $userRole")
+                if (userRole != null) {
+                    onSuccess.invoke(userRole)
+                } else {
+                    onFailure.invoke()
                 }
-                onSuccess(patientList)
+            } else {
+                onFailure.invoke()
+                Log.d("FirebaseRepository", "document does not exist")
             }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+        }?.addOnFailureListener {
+            onFailure.invoke()
+        }
     }
 
     fun insertBreach(userId: String, isMoistDetected: Boolean, isPressureDetected: Boolean, timestamp: Timestamp){
