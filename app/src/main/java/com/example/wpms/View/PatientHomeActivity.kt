@@ -56,7 +56,6 @@ class PatientHomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
         // Set content view
         setContentView(R.layout.activity_patient_home)
 
@@ -68,14 +67,11 @@ class PatientHomeActivity : AppCompatActivity() {
 
         // Find the ComposeView
         val composeView = findViewById<ComposeView>(R.id.composeView)
-
         // Initialize BarChart
         barChart = findViewById(R.id.barChart)
         setupBarChart()
-
         // Set pressure data
         setPressureData()
-
         // Set content for ComposeView
         composeView.setContent {
             // Remember to import CustomProgressBar composable function if it's not in the same package
@@ -87,7 +83,7 @@ class PatientHomeActivity : AppCompatActivity() {
         dataObserver = Observer { dataList ->
             // Insert pressure data into Firestore
             if (dataList.size >= 3) {
-                val deviceID = "your_device_3" // You need to define how you obtain the device ID
+                val deviceID = "your_device" // You need to define how you obtain the device ID
                 val moisture = dataList[0]
                 Log.d("PatientHomeActivity", "moisture: $moisture")
                 val pressure_center = dataList[1]
@@ -98,31 +94,37 @@ class PatientHomeActivity : AppCompatActivity() {
                 Log.d("PatientHomeActivity", "Pressure right: $pressure_right")
                 val timestamp = Timestamp(System.currentTimeMillis())
                 Log.d("PatientHomeActivity", "Timestamp: $timestamp")
+                isMoist = moisture
 
                 pressureData.add(pressure_center.toFloat())
                 pressureData.add(pressure_left.toFloat())
                 pressureData.add(pressure_right.toFloat())
 
-                isMoist = moisture
-                // Insert pressure data into Firestore
-//                viewModel.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
-                firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
+                //Calculate the average pressure for each sensor
+                val averagePressureCenter = pressureData.average()
+                val averagePressureLeft = pressureData.average()
+                val averagePressureRight = pressureData.average()
 
+                // Insert pressure & moisture data into Firestore
+                firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
                 firebaseRepository.insertMoistureData(deviceID, moisture, timestamp)
-//                val entries = ArrayList<BarEntry>()
-//                for (i in pressureData.indices) {
-//                    entries.add(BarEntry(i.toFloat(), pressureData[i]))
-//                }
+
+                //Breach detection
                 var isPressureDetected = pressure_center > pressureThreshold || pressure_left > pressureThreshold || pressure_right > pressureThreshold
                 var isMoistDetected = isMoist == 1
-
                 firebaseRepository.insertBreach(deviceID, isMoistDetected, isPressureDetected, timestamp)
 
-                // Update data set
-                barDataSet.addEntry(BarEntry(barDataSet.entryCount.toFloat(), pressure_center.toFloat()))
-//                barDataSet.clear()
-//                barDataSet.addAll(entries)
-//                barDataSet.label = "Pressure Data"
+                // Update bar chart data set
+                val entries = ArrayList<BarEntry>()
+                entries.add(BarEntry(0f, averagePressureCenter.toFloat()))
+                entries.add(BarEntry(1f, averagePressureLeft.toFloat()))
+                entries.add(BarEntry(2f, averagePressureRight.toFloat()))
+                for (entry in entries){
+                    barDataSet.addEntry(entry)
+                }
+//                barDataSet.addEntry(BarEntry(barDataSet.entryCount.toFloat(), pressure_center.toFloat()))
+                barDataSet.clear()
+                barDataSet.label = "Pressure Data"
 
                 // Refresh chart
                 barChart.data.notifyDataChanged()
@@ -162,34 +164,26 @@ class PatientHomeActivity : AppCompatActivity() {
     private fun setPressureData() {
         // Sample pressure data for 3 hours
 //        val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
-        val pressureData = mutableListOf<Int>()
-        val deviceID = "Device ID 2"
-        val timestamp = Timestamp(System.currentTimeMillis())
-
-        dataHandler.observeData().observe(this, dataObserver)
-
+//        val pressureData = mutableListOf<Int>()
+//        val deviceID = "Device ID 2"
+//        val timestamp = Timestamp(System.currentTimeMillis())
+        val entries = ArrayList<BarEntry>()
+        entries.add(BarEntry(0f, 0f)) // Center
+        entries.add(BarEntry(1f, 0f)) // Left
+        entries.add(BarEntry(2f, 0f)) // Right
         val legend = barChart.legend
         legend.isEnabled
 
-        // Prepare entries
-        val entries = ArrayList<BarEntry>()
-//        for (i in pressureData.indices) {
-//            entries.add(BarEntry(i.toFloat(), pressureData[i]))
-//        }
-
         // Create data set
         barDataSet = BarDataSet(entries, "Pressure Data")
-
         // Set Color for Bars
         barDataSet.setColors(android.graphics.Color.BLUE, android.graphics.Color.GREEN, android.graphics.Color.YELLOW)
-
         // Animate Bars
         barChart.animateY(1500)
 
         // Create BarData object and set data
         val barData = BarData(barDataSet)
         barChart.data = barData
-
         // Refresh chart
         barChart.invalidate()
     }
