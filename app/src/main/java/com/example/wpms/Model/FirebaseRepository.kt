@@ -11,8 +11,8 @@ class FirebaseRepository {
     private val patientsCollection = db.collection("users")
     private val pressureCollection = db.collection("pressure_data")
     private val moistureCollection = db.collection("moisture_data")
-    private val caregiverCollection = db.collection("caregivers")
-    //add other collections here
+    private val breachCollection = db.collection("breach_data")
+    private val caregiverCollection = db.collection("caregivers")    //add other collections here
 
     fun addCaregiver(userId: String, name: String, devices: Array<String>) {
         val caregiverDataDocRef = caregiverCollection.document(userId)
@@ -102,9 +102,35 @@ class FirebaseRepository {
         }
     }
 
+    fun insertBreach(userId: String, isMoistDetected: Boolean, isPressureDetected: Boolean, timestamp: Timestamp){
+        //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
+        val breachDataDocRef = breachCollection.document(userId)
+
+
+        //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
+        //to the values of the corresponding passed parameters of the function
+        val moistureData = hashMapOf(
+            "userId" to userId,
+            "isMoistDetected" to isMoistDetected,
+            "isPressureDetected" to isPressureDetected,
+            "timestamp" to timestamp
+        )
+
+        breachDataDocRef.set(moistureData)
+            .addOnSuccessListener {
+                println("Breach document created/updated in Firestore for user: $userId")
+            }
+            .addOnFailureListener { e ->
+                println("Error creating/updating Breach document in Firestore: $e")
+            }
+
+    }
+
     //Pressure collection methods
-    fun insertPressureData(deviceID: String, pressure_center: Int, pressure_left: Int, pressure_right: Int, timestamp: Timestamp){
-        val pressureDocRef = pressureCollection.document(deviceID)
+    fun insertPressureData(deviceID: String, pressure_center: Int, pressure_left: Int, pressure_right: Int, timestamp: Timestamp) {
+        // Generate a document ID that combines deviceID and timestamp for uniqueness
+        val documentId = "$deviceID-${timestamp.time}"
+
         val pressureData = hashMapOf(
             "deviceID" to deviceID,
             "pressure_center" to pressure_center,
@@ -112,9 +138,11 @@ class FirebaseRepository {
             "pressure_right" to pressure_right,
             "timestamp" to timestamp
         )
-        pressureDocRef.set(pressureData)
+
+        // Insert data as a new document in the pressure_data collection
+        pressureCollection.document(documentId).set(pressureData)
             .addOnSuccessListener {
-                println("Pressure document created/updated in Firestore for deviceID: $deviceID")
+                println("New pressure document created/updated in Firestore with ID: $documentId")
             }
             .addOnFailureListener { e ->
                 println("Error creating/updating pressure document in Firestore: $e")
@@ -129,6 +157,3 @@ class FirebaseRepository {
 
     }
 }
-
-
-
