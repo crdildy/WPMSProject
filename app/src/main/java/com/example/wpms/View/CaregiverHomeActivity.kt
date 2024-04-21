@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.wpms.Adapter.PatientAdapter
+import com.example.wpms.Adapter.UserAdapter
 import com.example.wpms.Model.FirebaseRepository
 import com.example.wpms.R
 import com.example.wpms.databinding.ActivityCaregiverHomeBinding
@@ -26,7 +26,7 @@ import com.example.wpms.databinding.ActivityCaregiverHomeBinding
 class CaregiverHomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCaregiverHomeBinding
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: PatientAdapter
+    private lateinit var adapter: UserAdapter
     private lateinit var firebaseRepository: FirebaseRepository
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -44,7 +44,7 @@ class CaregiverHomeActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.recyclerview)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = PatientAdapter(emptyList())
+        adapter = UserAdapter(emptyList())
         recyclerView.adapter = adapter
 
         binding.cardView.setOnClickListener{
@@ -69,14 +69,14 @@ class CaregiverHomeActivity : AppCompatActivity() {
             ProfilePictureHolder()
         }
 
-        firebaseRepository.getPatient(
-            onSuccess = { patients ->
-                adapter.setData(patients)
-            },
-            onFailure = { exception ->
-                Toast.makeText(this, "Failed to fetch patients: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
-        )
+//        firebaseRepository.getUser(
+//            onSuccess = { users ->
+//                adapter.setData(users)
+//            },
+//            onFailure = { exception ->
+//                Toast.makeText(this, "Failed to fetch user: ${exception.message}", Toast.LENGTH_SHORT).show()
+//            }
+//        )
     }
 
     @Preview
