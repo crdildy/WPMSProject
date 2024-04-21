@@ -20,19 +20,15 @@
             android:exported="false"/>
 
         <activity
-            android:name=".View.NewEditPatientActivity"
-            android:exported="false"/>
-
-        <activity
             android:name=".View.CaregiverHomeActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".View.PatientViewActivity"
+            android:name=".View.PatientHomeActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".View.PatientHomeActivity"
+            android:name=".View.PatientViewActivity"
             android:exported="false"/>
 
         <activity

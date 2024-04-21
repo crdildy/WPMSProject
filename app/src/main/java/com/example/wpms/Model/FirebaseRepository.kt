@@ -28,10 +28,6 @@ class FirebaseRepository {
             }
     }
 
-    fun getCurrentUserId(): String? {
-        return FirebaseAuth.getInstance().currentUser?.uid
-    }
-
     fun getUserRole(userId: String?, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
         Log.d("RepositoryData", "getUserRole function called")
         val userDoc = userId?.let { db.collection("users").document(it) }
@@ -55,6 +51,18 @@ class FirebaseRepository {
             Log.e("RepositoryData", "Error fetching user role: ${e.message}")
             onFailure.invoke(e)
         }
+    }
+
+    fun getPatients(onSuccess: (List<User>) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("patients")
+            .get()
+            .addOnSuccessListener { result ->
+                val patients = result.map { it.toObject(User::class.java) }
+                onSuccess(patients)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
     }
 }
 

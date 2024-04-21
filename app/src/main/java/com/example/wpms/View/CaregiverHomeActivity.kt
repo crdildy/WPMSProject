@@ -47,15 +47,9 @@ class CaregiverHomeActivity : AppCompatActivity() {
         adapter = UserAdapter(emptyList())
         recyclerView.adapter = adapter
 
-        binding.cardView.setOnClickListener{
-            Toast.makeText(this,"Patient List", Toast.LENGTH_SHORT).show()
-            val intentPatientList = Intent(this, PatientViewActivity::class.java)
-            startActivity(intentPatientList)
-        }
-
         binding.addPatient.setOnClickListener{
             Toast.makeText(this,"Patient", Toast.LENGTH_SHORT).show()
-            val intentPatientAdd = Intent(this, NewEditPatientActivity::class.java)
+            val intentPatientAdd = Intent(this, PatientViewActivity::class.java)
             startActivity(intentPatientAdd)
         }
 
@@ -65,18 +59,8 @@ class CaregiverHomeActivity : AppCompatActivity() {
 
         // Set content for ComposeView
         composeView.setContent {
-            // Remember to import CustomProgressBar composable function if it's not in the same package
             ProfilePictureHolder()
         }
-
-//        firebaseRepository.getUser(
-//            onSuccess = { users ->
-//                adapter.setData(users)
-//            },
-//            onFailure = { exception ->
-//                Toast.makeText(this, "Failed to fetch user: ${exception.message}", Toast.LENGTH_SHORT).show()
-//            }
-//        )
     }
 
     @Preview
