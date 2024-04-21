@@ -39,7 +39,6 @@ class LogInActivity : AppCompatActivity() {
         binding.log.setOnClickListener {
             val user = binding.username.text.toString()
             val pass = binding.password.text.toString()
-            var userRole: String? = null
 
             if (user.isNotEmpty() && pass.isNotEmpty()) {
                 firebaseAuth.signInWithEmailAndPassword(user, pass).addOnCompleteListener { task ->
@@ -52,25 +51,21 @@ class LogInActivity : AppCompatActivity() {
                         userViewModel.getUserRole(
                             userId,
                             onSuccess = { role ->
-                                userRole = role
+                                // Now you have the user's role, you can use it for further operations
+                                // For example, you can pass it to another activity using intent extras
+                                if (role == "caregiver") {
+                                    val intentCaregiver = Intent(this@LogInActivity, CaregiverHomeActivity::class.java)
+                                    startActivity(intentCaregiver)
+                                }
+                                else if (role == "patient") {
+                                    val intentPatient = Intent(this@LogInActivity, PatientHomeActivity::class.java)
+                                    startActivity(intentPatient)
+                                }
                             },
-                            onFailure = {
-                                Toast.makeText(this, "Failed to obtain user role for: $userRole", Toast.LENGTH_SHORT).show()
-
+                            onFailure = { e ->
+                                Toast.makeText(this, "Failed to obtain user role: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                         )
-                        userRole ?: ""
-
-                        // Now you have the user's UID, you can use it for further operations
-                        // For example, you can pass it to another activity using intent extras
-                        if (userRole == "caregiver") {
-                            val intentCaregiver = Intent(this@LogInActivity, CaregiverHomeActivity::class.java)
-                            startActivity(intentCaregiver)
-                        }
-                        else if (userRole == "patient") {
-                            val intentPatient = Intent(this@LogInActivity, PatientHomeActivity::class.java)
-                            startActivity(intentPatient)
-                        }
                     } else {
                         Log.e("LogInActivity", "User authentication failed")
                         Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()

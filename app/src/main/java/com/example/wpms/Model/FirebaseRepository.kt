@@ -32,7 +32,7 @@ class FirebaseRepository {
         return FirebaseAuth.getInstance().currentUser?.uid
     }
 
-    fun getUserRole(userId: String?, onSuccess: (String) -> Unit, onFailure: () -> Unit) {
+    fun getUserRole(userId: String?, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
         Log.d("RepositoryData", "getUserRole function called")
         val userDoc = userId?.let { db.collection("users").document(it) }
         Log.d("RepositoryData", "User Document: $userDoc")
@@ -45,14 +45,15 @@ class FirebaseRepository {
                 if (userRole != null) {
                     onSuccess.invoke(userRole)
                 } else {
-                    onFailure.invoke()
+                    onFailure.invoke(Exception("Role field is null"))
                 }
             } else {
-                onFailure.invoke()
-                Log.d("FirebaseRepository", "document does not exist")
+                onFailure.invoke(Exception("User document does not exist"))
+                Log.d("RepositoryData", "document does not exist")
             }
-        }?.addOnFailureListener {
-            onFailure.invoke()
+        }?.addOnFailureListener { e ->
+            Log.e("RepositoryData", "Error fetching user role: ${e.message}")
+            onFailure.invoke(e)
         }
     }
 }

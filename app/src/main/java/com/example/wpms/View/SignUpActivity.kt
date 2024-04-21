@@ -48,8 +48,17 @@ class SignUpActivity: AppCompatActivity() {
                 if(pass == confirmPass){
                     firebaseAuth.createUserWithEmailAndPassword(user, pass).addOnCompleteListener{
                         if (it.isSuccessful){
-                            val intentLogIn = Intent(this, LogInActivity::class.java)
-                            startActivity(intentLogIn)
+                            // Retrieve user's UID after successful registration
+                            val userId = firebaseAuth.currentUser?.uid
+                            if (userId != null) {
+                                // Use the retrieved userId when adding the user to Firestore
+                                firebaseRepository.addUser(userId, name, roomNumber, role)
+                                val intentLogIn = Intent(this, LogInActivity::class.java)
+                                startActivity(intentLogIn)
+                            } else {
+                                // Handle the case where user is not logged in
+                                Toast.makeText(this, "User is not logged in", Toast.LENGTH_SHORT).show()
+                            }
                         }else{
                             Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
                         }
@@ -59,17 +68,6 @@ class SignUpActivity: AppCompatActivity() {
                 }
             }else{
                 Toast.makeText(this,"Empty fields are not allowed", Toast.LENGTH_SHORT).show()
-            }
-            if (name.isNotEmpty()) {
-                val userId = firebaseAuth.currentUser?.uid
-                if (userId != null) {
-                    firebaseRepository.addUser(userId, name, roomNumber, role)
-                    finish()
-                } else {
-                    // Handle the case where user is not logged in
-                }
-            } else {
-                // Handle the case where name is empty
             }
         }
     }

@@ -37,6 +37,10 @@
 
         <activity
             android:name=".View.LogInActivity"
+            android:exported="false">
+        </activity>
+
+        <activity android:name=".View.SplashScreenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
