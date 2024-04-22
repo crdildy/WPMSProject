@@ -2,12 +2,17 @@ package com.example.wpms.View
 
 //import com.example.wpms.PatientHomeActivity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.wpms.Model.FirebaseRepository
+import com.example.wpms.R
 import com.example.wpms.ViewModel.UserViewModel
 import com.example.wpms.ViewModel.UserViewModelFactory
 import com.example.wpms.databinding.ActivityLogInBinding
@@ -22,6 +27,22 @@ class LogInActivity : AppCompatActivity() {
     private lateinit var userViewModel: UserViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let {
+                it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        }
+
         binding = ActivityLogInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

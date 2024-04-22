@@ -5,24 +5,4 @@
     android:id="@+id/splash_screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#81C3D7"
-    android:clipToOutline="true" >
-
-    <TextView
-        android:id="@+id/wpms"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:fontFamily="@font/fredoka_one"
-        android:text="WPMS"
-        android:textSize="50dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.601" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:background="#81C3D7"></androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,10 +7,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 class FirebaseRepository {
 
     private val db = FirebaseFirestore.getInstance()
-    private val patientsCollection = db.collection("users")
+    private val usersCollection = db.collection("users")
 
     fun addUser(userId: String, name: String, roomNumber: String, role: String) {
-        val patientDocRef = patientsCollection.document(userId)
+        val patientDocRef = usersCollection.document(userId)
 
         val patientData = hashMapOf(
             "userId" to userId,

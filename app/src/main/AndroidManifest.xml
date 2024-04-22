@@ -17,26 +17,32 @@
 
         <activity
             android:name=".MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false"/>
 
         <activity
             android:name=".View.CaregiverHomeActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false"/>
 
         <activity
             android:name=".View.PatientHomeActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false"/>
 
         <activity
             android:name=".View.PatientViewActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false"/>
 
         <activity
             android:name=".View.LogInActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false">
         </activity>
 
         <activity android:name=".View.SplashScreenActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,6 +52,7 @@
 
         <activity
             android:name=".View.SignUpActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false" />
 
     </application>
