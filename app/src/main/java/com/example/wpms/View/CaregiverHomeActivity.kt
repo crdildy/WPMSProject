@@ -1,5 +1,6 @@
 package com.example.wpms.View
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -40,6 +41,7 @@ class CaregiverHomeActivity : AppCompatActivity() {
         return true
     }
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
