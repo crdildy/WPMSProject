@@ -1,8 +1,11 @@
 package com.example.wpms.View
 
+import android.media.AudioManager
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.platform.ComposeView
 import com.example.wpms.R
 import androidx.compose.foundation.Canvas
@@ -28,11 +31,13 @@ import com.example.wpms.Model.FirebaseRepository
 import com.example.wpms.ViewModel.PatientHomeActivityViewModel
 import com.example.wpms.ViewModel.ViewModelFactory
 import com.example.wpms.databinding.ActivityPatientHomeBinding
+import com.example.wpms.mediaPlayer
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.components.XAxis
+import java.io.IOException
 import java.sql.Timestamp
 
 
@@ -50,6 +55,8 @@ class PatientHomeActivity : AppCompatActivity() {
     private lateinit var barDataSet: BarDataSet
     private val pressureData = mutableListOf<Float>()
     private val pressureThreshold by mutableStateOf(85)
+    private var alertDialog: AlertDialog? = null
+
 
     private var isMoist by mutableStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +89,6 @@ class PatientHomeActivity : AppCompatActivity() {
             CustomProgressBar(pressureVal)
         }
     }
-
     private fun observeData() {
         dataObserver = Observer { dataList ->
             // Insert pressure data into Firestore
@@ -108,12 +114,14 @@ class PatientHomeActivity : AppCompatActivity() {
 //                viewModel.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
                 firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
 
+
                 firebaseRepository.insertMoistureData(deviceID, moisture, timestamp)
 //                val entries = ArrayList<BarEntry>()
 //                for (i in pressureData.indices) {
 //                    entries.add(BarEntry(i.toFloat(), pressureData[i]))
 //                }
                 var isPressureDetected = pressure_center > pressureThreshold || pressure_left > pressureThreshold || pressure_right > pressureThreshold
+
                 var isMoistDetected = isMoist == 1
 
                 firebaseRepository.insertBreach(deviceID, isMoistDetected, isPressureDetected, timestamp)
@@ -128,6 +136,15 @@ class PatientHomeActivity : AppCompatActivity() {
                 barChart.data.notifyDataChanged()
                 barChart.notifyDataSetChanged()
                 barChart.invalidate()
+
+                // Check for alerts
+                if (isPressureDetected || isMoistDetected) {
+                    var alertMessage = ""
+                    if (isPressureDetected) alertMessage += "High pressure detected!\n"
+                    if (isMoistDetected) alertMessage += "Moisture detected!"
+
+                    showAlertWithSound(alertMessage)
+                }
             } else {
                 Log.e("PatientHomeActivity", "Insufficient data received")
             }
@@ -135,6 +152,37 @@ class PatientHomeActivity : AppCompatActivity() {
 
         // Observe data changes
         dataHandler.observeData().observe(this, dataObserver)
+    }
+
+    fun showAlertWithSound(message: String) {
+        // Check if the current alert dialog is showing and return if true to prevent multiple dialogs
+        if (alertDialog?.isShowing == true) return
+
+        playAlertSound()
+        alertDialog = AlertDialog.Builder(this)
+            .setTitle("Alert")
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, which ->
+                dialog.dismiss()
+            }
+            .create().also {
+                it.show()
+            }
+    }
+
+    fun playAlertSound() {
+        val audioURL = "https://raw.githubusercontent.com/crdildy/WPMSProject/main/AlarmSound/beep-warning-6387.mp3"
+
+        mediaPlayer = MediaPlayer()
+        mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        try {
+            mediaPlayer!!.setDataSource(audioURL)
+            mediaPlayer!!.prepare()
+            mediaPlayer!!.start()
+
+        } catch (e : IOException) {
+            e.printStackTrace()
+        }
     }
 
     private fun setupBarChart() {
@@ -248,4 +296,3 @@ class PatientHomeActivity : AppCompatActivity() {
         }
     }
 }
-
