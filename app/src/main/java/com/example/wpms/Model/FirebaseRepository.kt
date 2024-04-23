@@ -32,7 +32,7 @@ class FirebaseRepository {
     }
     fun insertMoistureData(deviceId: String, isMoist: Int, timestamp: Timestamp){
         //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
-        val moistureDataDocRef = moistureCollection.document(deviceId)
+        val documentId = "$deviceId-${timestamp.time}"
 
 
 
@@ -44,12 +44,13 @@ class FirebaseRepository {
             "timestamp" to timestamp
         )
 
-        moistureDataDocRef.set(moistureData)
+        // Insert data as a new document in the pressure_data collection
+        moistureCollection.document(documentId).set(moistureData)
             .addOnSuccessListener {
-                println("MoistureData document created/updated in Firestore for user: $deviceId")
+                println("New moisture document created/updated in Firestore with ID: $documentId")
             }
             .addOnFailureListener { e ->
-                println("Error creating/updating moistureDataq document in Firestore: $e")
+                println("Error creating/updating moisture document in Firestore: $e")
             }
 
     }
@@ -117,7 +118,7 @@ class FirebaseRepository {
 
     fun insertBreach(userId: String, isMoistDetected: Boolean, isPressureDetected: Boolean, timestamp: Timestamp){
         //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
-        val breachDataDocRef = breachCollection.document(userId)
+        val documentId = "$userId-${timestamp.time}"
 
 
         //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
@@ -129,12 +130,13 @@ class FirebaseRepository {
             "timestamp" to timestamp
         )
 
-        breachDataDocRef.set(breachData)
+        // Insert data as a new document in the pressure_data collection
+        breachCollection.document(documentId).set(breachData)
             .addOnSuccessListener {
-                println("Breach document created/updated in Firestore for user: $userId")
+                println("New breach document created/updated in Firestore with ID: $documentId")
             }
             .addOnFailureListener { e ->
-                println("Error creating/updating Breach document in Firestore: $e")
+                println("Error creating/updating breach document in Firestore: $e")
             }
 
     }
