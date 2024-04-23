@@ -58,7 +58,8 @@ class PatientHomeActivity : AppCompatActivity() {
     private var isMoist by mutableStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+//        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_patient_home)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
@@ -76,9 +77,6 @@ class PatientHomeActivity : AppCompatActivity() {
 
         binding = ActivityPatientHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Set content view
-        setContentView(R.layout.activity_patient_home)
 
         firebaseRepository = FirebaseRepository()
         var viewModel = ViewModelProvider(this, ViewModelFactory(FirebaseRepository()))
@@ -199,7 +197,6 @@ class PatientHomeActivity : AppCompatActivity() {
         legend.isEnabled
 
         // Prepare entries
-        val entries = ArrayList<BarEntry>()
         for (i in pressureData.indices) {
             entries.add(BarEntry(i.toFloat(), pressureData[i]))
         }

@@ -3,6 +3,7 @@ package com.example.wpms.Model
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.sql.Timestamp
 
 class FirebaseRepository {
 
@@ -77,7 +78,7 @@ class FirebaseRepository {
         return FirebaseAuth.getInstance().currentUser?.uid
     }
 
-    fun getUserRole(userId: String?, onSuccess: (String) -> Unit, onFailure: () -> Unit) {
+    fun getUserRole(userId: String?, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
         Log.d("RepositoryData", "getUserRole function called")
         val userDoc = userId?.let { db.collection("users").document(it) }
         Log.d("RepositoryData", "User Document: $userDoc")
@@ -113,7 +114,6 @@ class FirebaseRepository {
                 onFailure(exception)
             }
     }
-}
 
     fun insertBreach(userId: String, isMoistDetected: Boolean, isPressureDetected: Boolean, timestamp: Timestamp){
         //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
@@ -122,14 +122,14 @@ class FirebaseRepository {
 
         //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
         //to the values of the corresponding passed parameters of the function
-        val moistureData = hashMapOf(
+        val breachData = hashMapOf(
             "userId" to userId,
             "isMoistDetected" to isMoistDetected,
             "isPressureDetected" to isPressureDetected,
             "timestamp" to timestamp
         )
 
-        breachDataDocRef.set(moistureData)
+        breachDataDocRef.set(breachData)
             .addOnSuccessListener {
                 println("Breach document created/updated in Firestore for user: $userId")
             }
