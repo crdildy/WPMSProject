@@ -3,6 +3,7 @@ package com.example.wpms
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.wpms.Model.FirebaseRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +17,7 @@ import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class DataHandler private constructor() {
+class DataHandler(repository: FirebaseRepository) {
     private val dataLiveData: MutableLiveData<List<Int>> = MutableLiveData()
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -24,14 +25,15 @@ class DataHandler private constructor() {
         @Volatile
         private var instance: DataHandler? = null
 
-        fun getInstance(): DataHandler {
-            return instance ?: synchronized(this) {
-                instance ?: DataHandler().also { instance = it }
-            }
-        }
+//        fun getInstance(): DataHandler {
+//            return instance ?: synchronized(this) {
+//                instance ?: DataHandler().also { instance = it }
+//            }
+//        }
     }
 
     fun startDataRetrieval() {
+        Log.d("DataHandler", "call to start data retrieval")
         coroutineScope.launch {
             try {
                 val dataList = clientTCP()
