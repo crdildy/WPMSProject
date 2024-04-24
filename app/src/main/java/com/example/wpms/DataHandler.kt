@@ -16,6 +16,7 @@ import java.net.Socket
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.system.measureTimeMillis
 
 class DataHandler(repository: FirebaseRepository) {
     private val dataLiveData: MutableLiveData<List<Int>> = MutableLiveData()
@@ -76,12 +77,23 @@ class DataHandler(repository: FirebaseRepository) {
             outputStream.write(loginConfirmationMessage.toByteArray())
             outputStream.flush()
 
+            // Timer for sending switch command every 6 seconds
+            var lastSwitchTime = System.currentTimeMillis()
+
             // Receive data from the server
             val inputStream = socket.getInputStream()
 
             try {
                 while (true) {
                     val dataList = mutableListOf<Int>() // Create a new list for each set of data
+
+                    // Check if it's time to send a switch command
+                    if (System.currentTimeMillis() - lastSwitchTime > 6000) {
+                        outputStream.write("switch".toByteArray())
+                        outputStream.flush()
+                        lastSwitchTime = System.currentTimeMillis()
+                        Log.d("SwitchCommand", "Switch command sent")
+                    }
 
                     // Receive moisture value
                     val moistureData = inputStream.readBytesFully(4)
