@@ -103,7 +103,6 @@ class SignUpActivity: AppCompatActivity() {
             if (name.isNotEmpty()) {
                 val userId = firebaseAuth.currentUser?.uid
                 if (userId != null) {
-                    firebaseRepository.addUser(userId, name, roomNumber, role)
                     finish()
                 } else {
                     // Handle the case where user is not logged in
