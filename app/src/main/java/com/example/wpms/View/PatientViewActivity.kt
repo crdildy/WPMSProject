@@ -20,7 +20,7 @@ class PatientViewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_caregiver_patients_available)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
@@ -35,8 +35,6 @@ class PatientViewActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
         }
-
-        setContentView(R.layout.activity_caregiver_patients_available)
 
         firebaseRepository = FirebaseRepository()
 
