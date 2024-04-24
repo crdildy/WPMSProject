@@ -1,5 +1,8 @@
 package com.example.wpms.View
 
+import android.app.AlertDialog
+import android.media.AudioManager
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -28,11 +31,13 @@ import com.example.wpms.Model.FirebaseRepository
 import com.example.wpms.ViewModel.PatientHomeActivityViewModel
 import com.example.wpms.ViewModel.ViewModelFactory
 import com.example.wpms.databinding.ActivityPatientHomeBinding
+import com.example.wpms.mediaPlayer
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.components.XAxis
+import java.io.IOException
 import java.sql.Timestamp
 
 
@@ -40,7 +45,7 @@ class PatientHomeActivity : AppCompatActivity() {
     //give patient activity a reference to Firebase Repo
     private lateinit var firebaseRepository: FirebaseRepository
     private lateinit var viewModel: PatientHomeActivityViewModel
-//    private lateinit var viewModel = ViewModelProvider()
+    //    private lateinit var viewModel = ViewModelProvider()
     private lateinit var dataHandler: DataHandler
     private lateinit var dataObserver: Observer<List<Int>>
 
@@ -50,6 +55,7 @@ class PatientHomeActivity : AppCompatActivity() {
     private lateinit var barDataSet: BarDataSet
     private val pressureData = mutableListOf<Float>()
     private val pressureThreshold by mutableStateOf(85)
+    private var alertDialog: AlertDialog? = null
 
     private var isMoist by mutableStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,6 +136,15 @@ class PatientHomeActivity : AppCompatActivity() {
                 barChart.data.notifyDataChanged()
                 barChart.notifyDataSetChanged()
                 barChart.invalidate()
+
+                // Check for alerts
+                if (isPressureDetected || isMoistDetected) {
+                    var alertMessage = ""
+                    if (isPressureDetected) alertMessage += "High pressure detected!\n"
+                    if (isMoistDetected) alertMessage += "Moisture detected!"
+
+                    showAlertWithSound(alertMessage)
+                }
             } else {
                 Log.e("PatientHomeActivity", "Insufficient data received")
             }
@@ -137,6 +152,37 @@ class PatientHomeActivity : AppCompatActivity() {
 
         // Observe data changes
         dataHandler.observeData().observe(this, dataObserver)
+    }
+
+    fun showAlertWithSound(message: String) {
+        // Check if the current alert dialog is showing and return if true to prevent multiple dialogs
+        if (alertDialog?.isShowing == true) return
+
+        playAlertSound()
+        alertDialog = AlertDialog.Builder(this)
+            .setTitle("Alert")
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, which ->
+                dialog.dismiss()
+            }
+            .create().also {
+                it.show()
+            }
+    }
+
+    fun playAlertSound() {
+        val audioURL = "https://raw.githubusercontent.com/crdildy/WPMSProject/main/AlarmSound/beep-warning-6387.mp3"
+
+        mediaPlayer = MediaPlayer()
+        mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        try {
+            mediaPlayer!!.setDataSource(audioURL)
+            mediaPlayer!!.prepare()
+            mediaPlayer!!.start()
+
+        } catch (e : IOException) {
+            e.printStackTrace()
+        }
     }
 
     private fun setupBarChart() {
