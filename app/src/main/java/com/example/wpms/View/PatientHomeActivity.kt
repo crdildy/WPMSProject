@@ -1,174 +1,244 @@
-package com.example.wpms.Model
+package com.example.wpms.View
 
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.ui.platform.ComposeView
+import com.example.wpms.R
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import com.example.wpms.DataHandler
+import com.example.wpms.Model.FirebaseRepository
+import com.example.wpms.ViewModel.PatientHomeActivityViewModel
+import com.example.wpms.ViewModel.ViewModelFactory
+import com.example.wpms.databinding.ActivityPatientHomeBinding
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.components.XAxis
 import java.sql.Timestamp
 
-class FirebaseRepository {
 
-    private val db = FirebaseFirestore.getInstance()
-    private val patientsCollection = db.collection("users")
-    private val pressureCollection = db.collection("pressure_data")
-    private val moistureCollection = db.collection("moisture_data")
-    private val breachCollection = db.collection("breach_data")
-    private val caregiverCollection = db.collection("caregivers")    //add other collections here
+class PatientHomeActivity : AppCompatActivity() {
+    //give patient activity a reference to Firebase Repo
+    private lateinit var firebaseRepository: FirebaseRepository
+    private lateinit var viewModel: PatientHomeActivityViewModel
+//    private lateinit var viewModel = ViewModelProvider()
+    private lateinit var dataHandler: DataHandler
+    private lateinit var dataObserver: Observer<List<Int>>
 
-    fun addCaregiver(userId: String, name: String, devices: Array<String>) {
-        val caregiverDataDocRef = caregiverCollection.document(userId)
-        val caregiver = hashMapOf(
-            "userId" to userId,
-            "name" to name,
-            "devices" to devices.toList() // Convert array to list
-        )
+    private var pressureVal by mutableStateOf(1f)
+    private lateinit var binding: ActivityPatientHomeBinding
+    private lateinit var barChart: BarChart
+    private lateinit var barDataSet: BarDataSet
+    private val pressureData = mutableListOf<Float>()
+    private val pressureThreshold by mutableStateOf(85)
 
-        caregiverDataDocRef.set(caregiver)
-            .addOnSuccessListener {
-                println("Caregiver document successfully created/updated in Firestore for $userId")
-            }
-            .addOnFailureListener { e ->
-                println("Error creating/updating caregiver document in Firestore: $e")
-            }
-    }
-    fun insertMoistureData(deviceId: String, isMoist: Int, timestamp: Timestamp){
-        //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
-        val documentId = "$deviceId-${timestamp.time}"
+    private var isMoist by mutableStateOf(0)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityPatientHomeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        // Set content view
+        setContentView(R.layout.activity_patient_home)
 
+        firebaseRepository = FirebaseRepository()
+        var viewModel = ViewModelProvider(this, ViewModelFactory(FirebaseRepository()))
+        dataHandler = DataHandler(firebaseRepository)
+        observeData()
+        dataHandler.startDataRetrieval()
 
-
-        //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
-        //to the values of the corresponding passed parameters of the function
-        val moistureData = hashMapOf(
-            "deviceId" to deviceId,
-            "isMoist" to isMoist,
-            "timestamp" to timestamp
-        )
-
-        // Insert data as a new document in the pressure_data collection
-        moistureCollection.document(documentId).set(moistureData)
-            .addOnSuccessListener {
-                println("New moisture document created/updated in Firestore with ID: $documentId")
-            }
-            .addOnFailureListener { e ->
-                println("Error creating/updating moisture document in Firestore: $e")
-            }
-
-    }
-
-    //Patient collection methods
-    fun addUser(userId: String, name: String, roomNumber: String, role: String) {
-        val patientDocRef = patientsCollection.document(userId)
-
-        val patientData = hashMapOf(
-            "userId" to userId,
-            "name" to name,
-            "roomNumber" to roomNumber,
-            "role" to role
-        )
-
-        patientDocRef.set(patientData)
-            .addOnSuccessListener {
-                println("Patient document created/updated in Firestore for user: $userId")
-            }
-            .addOnFailureListener { e ->
-                println("Error creating/updating patient document in Firestore: $e")
-            }
-    }
-
-    fun getCurrentUserId(): String? {
-        return FirebaseAuth.getInstance().currentUser?.uid
-    }
-
-    fun getUserRole(userId: String?, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
-        Log.d("RepositoryData", "getUserRole function called")
-        val userDoc = userId?.let { db.collection("users").document(it) }
-        Log.d("RepositoryData", "User Document: $userDoc")
-        Log.d("RepositoryData", "User Document: $userId")
-
-        userDoc?.get()?.addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()) {
-                val userRole = documentSnapshot.getString("role")
-                Log.d("RepositoryData", "fetching userRole: $userRole")
-                if (userRole != null) {
-                    onSuccess.invoke(userRole)
-                } else {
-                    onFailure.invoke(Exception("Role field is null"))
-                }
-            } else {
-                onFailure.invoke(Exception("User document does not exist"))
-                Log.d("RepositoryData", "document does not exist")
-            }
-        }?.addOnFailureListener { e ->
-            Log.e("RepositoryData", "Error fetching user role: ${e.message}")
-            onFailure.invoke(e)
+        // Find the ComposeView
+        val composeView = findViewById<ComposeView>(R.id.composeView)
+        // Initialize BarChart
+        barChart = findViewById(R.id.barChart)
+        setupBarChart()
+        // Set pressure data
+        setPressureData()
+        // Set content for ComposeView
+        composeView.setContent {
+            // Remember to import CustomProgressBar composable function if it's not in the same package
+            CustomProgressBar(pressureVal)
         }
     }
 
-    fun getPatients(onSuccess: (List<User>) -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("patients")
-            .get()
-            .addOnSuccessListener { result ->
-                val patients = result.map { it.toObject(User::class.java) }
-                onSuccess(patients)
+    private fun observeData() {
+        dataObserver = Observer { dataList ->
+            // Insert pressure data into Firestore
+            if (dataList.size >= 3) {
+                val deviceID = "your_device" // You need to define how you obtain the device ID
+                val moisture = dataList[0]
+                Log.d("PatientHomeActivity", "moisture: $moisture")
+                val pressure_center = dataList[1]
+                Log.d("PatientHomeActivity", "Pressure Center: $pressure_center")
+                val pressure_left = dataList[2]
+                Log.d("PatientHomeActivity", "Pressure left: $pressure_left")
+                val pressure_right = dataList[3]
+                Log.d("PatientHomeActivity", "Pressure right: $pressure_right")
+                val timestamp = Timestamp(System.currentTimeMillis())
+                Log.d("PatientHomeActivity", "Timestamp: $timestamp")
+                isMoist = moisture
+
+                pressureData.add(pressure_center.toFloat())
+                pressureData.add(pressure_left.toFloat())
+                pressureData.add(pressure_right.toFloat())
+
+                //Calculate the average pressure for each sensor
+                val averagePressureCenter = pressureData.average()
+                val averagePressureLeft = pressureData.average()
+                val averagePressureRight = pressureData.average()
+
+                // Insert pressure & moisture data into Firestore
+                firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
+                firebaseRepository.insertMoistureData(deviceID, moisture, timestamp)
+
+                //Breach detection
+                var isPressureDetected = pressure_center > pressureThreshold || pressure_left > pressureThreshold || pressure_right > pressureThreshold
+                var isMoistDetected = isMoist == 1
+                firebaseRepository.insertBreach(deviceID, isMoistDetected, isPressureDetected, timestamp)
+
+                // Update bar chart data set
+                val entries = ArrayList<BarEntry>()
+                entries.add(BarEntry(0f, averagePressureCenter.toFloat()))
+                entries.add(BarEntry(1f, averagePressureLeft.toFloat()))
+                entries.add(BarEntry(2f, averagePressureRight.toFloat()))
+                for (entry in entries){
+                    barDataSet.addEntry(entry)
+                }
+//                barDataSet.addEntry(BarEntry(barDataSet.entryCount.toFloat(), pressure_center.toFloat()))
+                barDataSet.clear()
+                barDataSet.label = "Pressure Data"
+
+                // Refresh chart
+                barChart.data.notifyDataChanged()
+                barChart.notifyDataSetChanged()
+                barChart.invalidate()
+            } else {
+                Log.e("PatientHomeActivity", "Insufficient data received")
             }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+        }
+
+        // Observe data changes
+        dataHandler.observeData().observe(this, dataObserver)
     }
 
-    fun insertBreach(userId: String, isMoistDetected: Boolean, isPressureDetected: Boolean, timestamp: Timestamp){
-        //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
-        val documentId = "$userId-${timestamp.time}"
+    private fun setupBarChart() {
+        // Configure bar chart
+        barChart.description.isEnabled = false
+        barChart.setPinchZoom(false)
+        barChart.setDrawBarShadow(false)
+        barChart.setDrawGridBackground(false)
 
+        // Customize X-axis
+        val xAxis = barChart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
 
-        //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
-        //to the values of the corresponding passed parameters of the function
-        val breachData = hashMapOf(
-            "userId" to userId,
-            "isMoistDetected" to isMoistDetected,
-            "isPressureDetected" to isPressureDetected,
-            "timestamp" to timestamp
-        )
+        // Customize Y-axis
+        val leftAxis = barChart.axisLeft
+        leftAxis.axisMinimum = 0f
+        leftAxis.setDrawGridLines(false)
 
-        // Insert data as a new document in the pressure_data collection
-        breachCollection.document(documentId).set(breachData)
-            .addOnSuccessListener {
-                println("New breach document created/updated in Firestore with ID: $documentId")
-            }
-            .addOnFailureListener { e ->
-                println("Error creating/updating breach document in Firestore: $e")
-            }
-
+        // Disable right axis
+        barChart.axisRight.isEnabled = false
     }
 
-    //Pressure collection methods
-    fun insertPressureData(deviceID: String, pressure_center: Int, pressure_left: Int, pressure_right: Int, timestamp: Timestamp) {
-        // Generate a document ID that combines deviceID and timestamp for uniqueness
-        val documentId = "$deviceID-${timestamp.time}"
+    //Setting the pressure values on the charts
+    private fun setPressureData() {
+        // Sample pressure data for 3 hours
+//        val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
+//        val pressureData = mutableListOf<Int>()
+//        val deviceID = "Device ID 2"
+//        val timestamp = Timestamp(System.currentTimeMillis())
+        val entries = ArrayList<BarEntry>()
+        entries.add(BarEntry(0f, 0f)) // Center
+        entries.add(BarEntry(1f, 0f)) // Left
+        entries.add(BarEntry(2f, 0f)) // Right
+        val legend = barChart.legend
+        legend.isEnabled
 
-        val pressureData = hashMapOf(
-            "deviceID" to deviceID,
-            "pressure_center" to pressure_center,
-            "pressure_left" to pressure_left,
-            "pressure_right" to pressure_right,
-            "timestamp" to timestamp
-        )
+        // Create data set
+        barDataSet = BarDataSet(entries, "Pressure Data")
+        // Set Color for Bars
+        barDataSet.setColors(android.graphics.Color.BLUE, android.graphics.Color.GREEN, android.graphics.Color.YELLOW)
+        // Animate Bars
+        barChart.animateY(1500)
 
-        // Insert data as a new document in the pressure_data collection
-        pressureCollection.document(documentId).set(pressureData)
-            .addOnSuccessListener {
-                println("New pressure document created/updated in Firestore with ID: $documentId")
-            }
-            .addOnFailureListener { e ->
-                println("Error creating/updating pressure document in Firestore: $e")
-            }
+        // Create BarData object and set data
+        val barData = BarData(barDataSet)
+        barChart.data = barData
+        // Refresh chart
+        barChart.invalidate()
     }
-    //to view all pressure docs, given deviceID
-    fun getAllPressure(){
 
+    fun detectMoisture() {
+        return
     }
-    //Use for grabbing recent data, given device ID (can be used for graph?)
-    fun getRecentPressure(){
 
+    @Preview
+    @Composable
+    fun ProgressBarPreview() {
+        CustomProgressBar(pressureVal)
+    }
+
+    @Composable
+    fun CustomProgressBar(pressurePercentage: Float = 1.0f) {
+        Canvas(
+            modifier = Modifier
+                .size(150.dp)
+                .padding(20.dp)
+                .rotate(140f)
+        ) {
+            val radius = size.minDimension / 2
+            // Background Arc
+            drawArc(
+                color = Color(android.graphics.Color.parseColor("#90A4AE")),
+                0f,
+                260f,
+                false,
+                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
+                size = Size(size.width, size.height)
+            )
+
+            // Foreground Arc
+            drawArc(
+                brush = Brush.linearGradient(listOf(
+                    Color(android.graphics.Color.parseColor("#b8002a")),
+                    Color(android.graphics.Color.parseColor("#ff8200"))
+                )),
+                0f,
+                pressurePercentage,
+                false,
+                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
+                size = Size(size.width, size.height)
+            )
+
+            // Profile Picture
+            drawCircle(
+                color = Color.White,
+                radius =  radius - 25.dp.toPx(),
+            )
+            drawCircle(
+                color = Color.Gray,
+                radius = radius - 30.dp.toPx(),
+            )
+        }
     }
 }
