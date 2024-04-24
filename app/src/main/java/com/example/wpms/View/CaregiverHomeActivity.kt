@@ -27,6 +27,7 @@ import com.example.wpms.Adapter.UserAdapter
 import com.example.wpms.Model.FirebaseRepository
 import com.example.wpms.R
 import com.example.wpms.databinding.ActivityCaregiverHomeBinding
+import com.google.firebase.auth.FirebaseAuth
 
 
 class CaregiverHomeActivity : AppCompatActivity() {
@@ -34,6 +35,7 @@ class CaregiverHomeActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: UserAdapter
     private lateinit var firebaseRepository: FirebaseRepository
+    private lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
@@ -45,6 +47,12 @@ class CaregiverHomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Initialize FirebaseAuth instance
+        firebaseAuth = FirebaseAuth.getInstance()
+
+        // Get current user's userId
+        val caregiverId = firebaseAuth.currentUser?.uid
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
@@ -66,8 +74,22 @@ class CaregiverHomeActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.recyclerview)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = UserAdapter(emptyList())
+        adapter = UserAdapter(emptyList()) { user ->
+            Toast.makeText(this, "Clicked user with id: ${user.userId}", Toast.LENGTH_SHORT).show()
+        }
         recyclerView.adapter = adapter
+
+        // Fetch patients and update RecyclerView
+        if (caregiverId != null) {
+            firebaseRepository.getCaregiverPatients(caregiverId,
+                onSuccess = { patients ->
+                    adapter.setData(patients)
+                },
+                onFailure = { exception ->
+                    Toast.makeText(this, "Failed to fetch patients: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
 
         binding.addPatient.setOnClickListener{
             Toast.makeText(this,"Patient", Toast.LENGTH_SHORT).show()

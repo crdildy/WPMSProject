@@ -1,5 +1,6 @@
 package com.example.wpms.View
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowInsets
@@ -12,15 +13,23 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.wpms.Adapter.UserAdapter
 import com.example.wpms.Model.FirebaseRepository
 import com.example.wpms.R
+import com.google.firebase.auth.FirebaseAuth
 
 class PatientViewActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: UserAdapter
     private lateinit var firebaseRepository: FirebaseRepository
+    private lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_caregiver_patients_available)
+
+        // Initialize FirebaseAuth instance
+        firebaseAuth = FirebaseAuth.getInstance()
+
+        // Get current user's userId
+        val caregiverId = firebaseAuth.currentUser?.uid
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
@@ -36,13 +45,16 @@ class PatientViewActivity : AppCompatActivity() {
             )
         }
 
-        setContentView(R.layout.activity_caregiver_patients_available)
-
         firebaseRepository = FirebaseRepository()
 
         recyclerView = findViewById(R.id.recyclerview)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = UserAdapter(emptyList())
+        adapter = UserAdapter(emptyList()) { user ->
+            if (caregiverId != null) {
+                firebaseRepository.addPatientToList(caregiverId, user.userId)
+            }
+            Toast.makeText(this, "Added ${user.name} to your list of patients!", Toast.LENGTH_SHORT).show()
+        }
         recyclerView.adapter = adapter
 
         firebaseRepository.getPatients(

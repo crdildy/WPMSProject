@@ -61,8 +61,6 @@ class PatientHomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPatientHomeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        // Set content view
         setContentView(R.layout.activity_patient_home)
 
         firebaseRepository = FirebaseRepository()
