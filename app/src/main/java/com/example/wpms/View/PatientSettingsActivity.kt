@@ -17,14 +17,14 @@ class PatientSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_settings)
 
-        profilePicture = findViewById(R.id.profilePicture)
-        selectProfilePictureButton = findViewById(R.id.selectProfilePictureButton)
-
-        selectProfilePictureButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            startActivityForResult(intent, 0)
-        }
+//        profilePicture = findViewById(R.id.profilePicture)
+//        selectProfilePictureButton = findViewById(R.id.selectProfilePictureButton)
+//
+//        selectProfilePictureButton.setOnClickListener {
+//            val intent = Intent(Intent.ACTION_PICK)
+//            intent.type = "image/*"
+//            startActivityForResult(intent, 0)
+//        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
