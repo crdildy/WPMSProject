@@ -1,4 +1,4 @@
-package com.example.wpms.Model
+package com.example.wpms.ViewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
