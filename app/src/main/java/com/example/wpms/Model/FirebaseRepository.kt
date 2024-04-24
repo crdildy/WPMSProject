@@ -35,8 +35,6 @@ class FirebaseRepository {
         //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
         val documentId = "$deviceId-${timestamp.time}"
 
-
-
         //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
         //to the values of the corresponding passed parameters of the function
         val moistureData = hashMapOf(
@@ -54,6 +52,31 @@ class FirebaseRepository {
                 println("Error creating/updating moisture document in Firestore: $e")
             }
 
+    }
+
+    fun addPatientToList(caregiverId: String, patientId: String) {
+        val caregiverDocRef = caregiverCollection.document(caregiverId)
+
+        caregiverDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val patients = document.get("patients") as? List<String>
+                    if (patients != null) {
+                        val updatedPatients = patients.toMutableList()
+                        updatedPatients.add(patientId)
+                        caregiverDocRef.update("patients", updatedPatients)
+                            .addOnSuccessListener {
+                                println("Patient added to caregiver's list")
+                            }
+                            .addOnFailureListener { e ->
+                                println("Error adding patient to caregiver's list: $e")
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                println("Error fetching caregiver document: $e")
+            }
     }
 
     //Patient collection methods
@@ -119,6 +142,46 @@ class FirebaseRepository {
             onFailure.invoke(e)
         }
     }
+
+    fun getCaregiverPatients(caregiverId: String, onSuccess: (List<User>) -> Unit, onFailure: (Exception) -> Unit) {
+    val caregiverDocRef = caregiverCollection.document(caregiverId)
+
+    caregiverDocRef.get()
+        .addOnSuccessListener { document ->
+            if (document.exists()) {
+                val patientIds = document.get("patients") as? List<String>
+                if (patientIds != null) {
+                    val patients = mutableListOf<User>()
+                    val patientCount = patientIds.size
+                    var fetchedCount = 0
+
+                    for (patientId in patientIds) {
+                        usersCollection.document(patientId).get()
+                            .addOnSuccessListener { patientDocument ->
+                                val patient = patientDocument.toObject(User::class.java)
+                                if (patient != null) {
+                                    patients.add(patient)
+                                }
+                                fetchedCount++
+                                if (fetchedCount == patientCount) {
+                                    onSuccess(patients)
+                                }
+                            }
+                            .addOnFailureListener { exception ->
+                                onFailure(exception)
+                            }
+                    }
+                } else {
+                    onFailure(Exception("No patients found for caregiver"))
+                }
+            } else {
+                onFailure(Exception("Caregiver document does not exist"))
+            }
+        }
+        .addOnFailureListener { exception ->
+            onFailure(exception)
+        }
+}
 
     fun getPatients(onSuccess: (List<User>) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("patients")

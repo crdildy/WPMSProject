@@ -75,11 +75,11 @@ class LogInActivity : AppCompatActivity() {
                                 // Now you have the user's role, you can use it for further operations
                                 // For example, you can pass it to another activity using intent extras
                                 if (role == "caregiver") {
-                                    val intentCaregiver = Intent(this@LogInActivity, CaregiverHomeActivity::class.java)
+                                    val intentCaregiver = Intent(this, CaregiverHomeActivity::class.java)
                                     startActivity(intentCaregiver)
                                 }
                                 else if (role == "patient") {
-                                    val intentPatient = Intent(this@LogInActivity, PatientHomeActivity::class.java)
+                                    val intentPatient = Intent(this, PatientHomeActivity::class.java)
                                     startActivity(intentPatient)
                                 }
                             },
