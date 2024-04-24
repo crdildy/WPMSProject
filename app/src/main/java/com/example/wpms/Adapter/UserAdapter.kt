@@ -17,14 +17,12 @@ class UserAdapter(private var users: List<User>) : RecyclerView.Adapter<UserAdap
     override fun onBindViewHolder(holder: PatientViewHolder, position: Int) {
         val currentPatient = users[position]
         holder.nameTextView.text = currentPatient.name
-        holder.roomNumberTextView.text = currentPatient.roomNumber
     }
 
     override fun getItemCount() = users.size
 
     class PatientViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.tvName)
-        val roomNumberTextView: TextView = itemView.findViewById(R.id.tvRoomNumber)
     }
 
     fun setData(newUsers: List<User>) {

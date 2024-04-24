@@ -13,6 +13,7 @@ import com.example.wpms.R
 import com.example.wpms.databinding.ActivitySignUpBinding
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
+import com.google.android.gms.common.internal.safeparcel.SafeParcelable.NULL
 
 //come to the sign up activity if user does not already have username and password
 //once user completes all the fields in sign up they will be directed back to the
@@ -75,8 +76,16 @@ class SignUpActivity: AppCompatActivity() {
                             if (userId != null) {
                                 // Use the retrieved userId when adding the user to Firestore
                                 firebaseRepository.addUser(userId, name, roomNumber, role)
-                                val intentLogIn = Intent(this, LogInActivity::class.java)
-                                startActivity(intentLogIn)
+                                if (role == "patient") {
+                                    val intentPatient = Intent(this, PatientHomeActivity::class.java)
+                                    firebaseRepository.addPatient(userId, name, NULL, arrayOf())
+                                    startActivity(intentPatient)
+
+                                } else if (role == "caregiver") {
+                                    val intentCaregiver = Intent(this, CaregiverHomeActivity::class.java)
+                                    firebaseRepository.addCaregiver(userId, name, arrayOf())
+                                    startActivity(intentCaregiver)
+                                }
                             } else {
                                 // Handle the case where user is not logged in
                                 Toast.makeText(this, "User is not logged in", Toast.LENGTH_SHORT).show()

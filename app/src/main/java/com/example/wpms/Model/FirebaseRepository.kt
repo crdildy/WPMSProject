@@ -8,18 +8,19 @@ import java.sql.Timestamp
 class FirebaseRepository {
 
     private val db = FirebaseFirestore.getInstance()
-    private val patientsCollection = db.collection("users")
+    private val usersCollection = db.collection("users")
     private val pressureCollection = db.collection("pressure_data")
     private val moistureCollection = db.collection("moisture_data")
     private val breachCollection = db.collection("breach_data")
+    private val patientCollection = db.collection("patients")
     private val caregiverCollection = db.collection("caregivers")    //add other collections here
 
-    fun addCaregiver(userId: String, name: String, devices: Array<String>) {
+    fun addCaregiver(userId: String, name: String, patients: Array<String>) {
         val caregiverDataDocRef = caregiverCollection.document(userId)
         val caregiver = hashMapOf(
             "userId" to userId,
             "name" to name,
-            "devices" to devices.toList() // Convert array to list
+            "patients" to patients.toList()
         )
 
         caregiverDataDocRef.set(caregiver)
@@ -57,7 +58,7 @@ class FirebaseRepository {
 
     //Patient collection methods
     fun addUser(userId: String, name: String, roomNumber: String, role: String) {
-        val patientDocRef = patientsCollection.document(userId)
+        val patientDocRef = usersCollection.document(userId)
 
         val patientData = hashMapOf(
             "userId" to userId,
@@ -75,8 +76,23 @@ class FirebaseRepository {
             }
     }
 
-    fun getCurrentUserId(): String? {
-        return FirebaseAuth.getInstance().currentUser?.uid
+    fun addPatient(userId: String, name: String, roomNumber: String, caregivers: Array<String>) {
+        val patientDocRef = patientCollection.document(userId)
+
+        val patientData = hashMapOf(
+            "userId" to userId,
+            "name" to name,
+            "roomNumber" to roomNumber,
+            "caregivers" to caregivers.toList()
+        )
+
+        patientDocRef.set(patientData)
+            .addOnSuccessListener {
+                println("Patient document created/updated in Firestore for user: $userId")
+            }
+            .addOnFailureListener { e ->
+                println("Error creating/updating patient document in Firestore: $e")
+            }
     }
 
     fun getUserRole(userId: String?, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
