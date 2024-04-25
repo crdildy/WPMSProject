@@ -21,9 +21,9 @@ import com.google.android.gms.common.internal.safeparcel.SafeParcelable.NULL
 class SignUpActivity: AppCompatActivity() {
 
     private lateinit var firebaseRepository: FirebaseRepository
-
     private lateinit var binding: ActivitySignUpBinding
     private lateinit var firebaseAuth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
