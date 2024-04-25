@@ -115,9 +115,7 @@ class PatientHomeActivity : AppCompatActivity() {
                 val avgPressureProgressBar = (pressure_center + pressure_left + pressure_right) / 3
                 updateProgressBar(avgPressureProgressBar)
                 //Calculate the average pressure for each sensor
-//                val averagePressureCenter = pressureData.average()
-//                val averagePressureLeft = pressureData.average()
-//                val averagePressureRight = pressureData.average()
+
 
                 // Insert pressure & moisture data into Firestore
                 firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
