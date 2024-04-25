@@ -26,6 +26,11 @@
             android:exported="false"/>
 
         <activity
+            android:name=".View.PatientSettingsActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:exported="false"/>
+
+        <activity
             android:name=".View.PatientHomeActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false"/>
