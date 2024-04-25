@@ -14,30 +14,22 @@ class FirebaseRepository {
     private val patientCollection = db.collection("patients")
     private val caregiverCollection = db.collection("caregivers")    //add other collections here
 
-    fun addCaregiver(userId: String, name: String, patients: List<String>) {
-    val caregiverDocRef = caregiverCollection.document(userId)
+    fun addCaregiver(userId: String, name: String, patients: Array<String>) {
+        val caregiverDataDocRef = caregiverCollection.document(userId)
+        val caregiver = hashMapOf(
+            "userId" to userId,
+            "name" to name,
+            "patients" to patients.toList()
+        )
 
-    caregiverDocRef.get()
-        .addOnSuccessListener { document ->
-            if (document.exists()) {
-                // Caregiver with the same ID already exists, do not overwrite it
-                Log.d("FirebaseRepository", "Caregiver with ID $userId already exists")
-            } else {
-                // Caregiver with the same ID does not exist, add a new one
-                val caregiver = Caregiver(userId, name, patients)
-                caregiverCollection.document(userId).set(caregiver)
-                    .addOnSuccessListener {
-                        Log.d("FirebaseRepository", "Caregiver added with ID: $userId")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("FirebaseRepository", "Error adding caregiver", e)
-                    }
+        caregiverDataDocRef.set(caregiver)
+            .addOnSuccessListener {
+                println("Caregiver document successfully created/updated in Firestore for $userId")
             }
-        }
-        .addOnFailureListener { exception ->
-            Log.w("FirebaseRepository", "Error checking for existing caregiver", exception)
-        }
-}
+            .addOnFailureListener { e ->
+                println("Error creating/updating caregiver document in Firestore: $e")
+            }
+    }
     fun insertMoistureData(deviceId: String, isMoist: Int, timestamp: Timestamp){
         //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
         val documentId = "$deviceId-${timestamp.time}"
