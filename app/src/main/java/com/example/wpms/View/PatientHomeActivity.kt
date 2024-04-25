@@ -5,8 +5,6 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
-import androidx.compose.ui.platform.ComposeView
-import com.example.wpms.R
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
@@ -22,12 +20,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.wpms.DataHandler
 import com.example.wpms.Model.FirebaseRepository
+import com.example.wpms.R
 import com.example.wpms.ViewModel.PatientHomeActivityViewModel
 import com.example.wpms.ViewModel.ViewModelFactory
 import com.example.wpms.databinding.ActivityPatientHomeBinding
