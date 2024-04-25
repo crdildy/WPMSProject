@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wpms.Adapter.UserAdapter
 import com.example.wpms.Model.FirebaseRepository
+import com.example.wpms.Model.Patient
 import com.example.wpms.R
 import com.google.firebase.auth.FirebaseAuth
 
@@ -57,7 +58,15 @@ class PatientViewActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         firebaseRepository.getPatients(
-            onSuccess = { patients ->
+            onSuccess = { users ->
+                val patients = users.map { user ->
+                    Patient(
+                        userId = user.userId,
+                        name = user.name,
+                        room = "", // You'll need to fetch the room number for each user
+                        caregivers = listOf() // You'll need to fetch the caregivers for each user
+                    )
+                }
                 adapter.setData(patients)
             },
             onFailure = { exception ->

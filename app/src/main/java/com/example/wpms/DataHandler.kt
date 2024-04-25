@@ -16,7 +16,6 @@ import java.net.Socket
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import kotlin.system.measureTimeMillis
 
 class DataHandler(repository: FirebaseRepository) {
     private val dataLiveData: MutableLiveData<List<Int>> = MutableLiveData()
@@ -56,7 +55,7 @@ class DataHandler(repository: FirebaseRepository) {
 
     private fun clientTCP(): List<Int> {
         // Define the server address and port
-        val serverAddress = "10.0.2.2"
+        val serverAddress = "192.168.2.178"
         val port = 12345
 
         // Create a socket to connect to the server

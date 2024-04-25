@@ -1,36 +1,38 @@
-package com.example.wpms.Adapter// com.example.wpms.Adapter.PatientAdapter.kt
+package com.example.wpms.Adapter
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.wpms.Model.User
+import com.example.wpms.Model.Patient
 import com.example.wpms.R
 
-class UserAdapter(private var users: List<User>, private val onUserClick: (User) -> Unit) : RecyclerView.Adapter<UserAdapter.PatientViewHolder>() {
+class UserAdapter(private var patients: List<Patient>, private val clickListener: (Patient) -> Unit) :
+    RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PatientViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.recyclerview_item, parent, false)
-        return PatientViewHolder(itemView)
+    class UserViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+        val nameTextView: TextView = view.findViewById(R.id.tvName)
+        val roomTextView: TextView = view.findViewById(R.id.tvRoomNumber)
     }
 
-    override fun onBindViewHolder(holder: PatientViewHolder, position: Int) {
-        val currentUser = users[position]
-        holder.nameTextView.text = currentUser.name
-        holder.itemView.setOnClickListener {
-            onUserClick(currentUser)
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.recyclerview_item, parent, false)
+        return UserViewHolder(view)
     }
 
-    override fun getItemCount() = users.size
-
-    class PatientViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameTextView: TextView = itemView.findViewById(R.id.tvName)
+    override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
+        val patient = patients[position]
+        holder.nameTextView.text = patient.name
+        holder.roomTextView.text = patient.room
+        holder.view.setOnClickListener { clickListener(patient) }
     }
 
-    fun setData(newUsers: List<User>) {
-        users = newUsers
+    override fun getItemCount() = patients.size
+
+    fun setData(newPatients: List<Patient>) {
+        patients = newPatients
         notifyDataSetChanged()
     }
 }
