@@ -63,7 +63,7 @@ class FirebaseRepository {
         caregiverDocRef.get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val patients = document.get("patients") as? List<String>
+                    val patients = document.get("patients") as? List<*>
                     if (patients != null) {
                         val updatedPatients = patients.toMutableList()
                         updatedPatients.add(patientId)
@@ -153,14 +153,14 @@ class FirebaseRepository {
     caregiverDocRef.get()
         .addOnSuccessListener { document ->
             if (document.exists()) {
-                val patientIds = document.get("patients") as? List<String>
+                val patientIds = document.get("patients") as? List<*>
                 if (patientIds != null) {
                     val patients = mutableListOf<User>()
                     val patientCount = patientIds.size
                     var fetchedCount = 0
 
                     for (patientId in patientIds) {
-                        usersCollection.document(patientId).get()
+                        usersCollection.document(patientId.toString()).get()
                             .addOnSuccessListener { patientDocument ->
                                 val patient = patientDocument.toObject(User::class.java)
                                 if (patient != null) {
@@ -225,22 +225,21 @@ class FirebaseRepository {
     }
 
     //Pressure collection methods
-    fun insertPressureData(deviceID: String, pressure_center: Float, pressure_left: Float, pressure_right: Float, timestamp: Timestamp) {
+    fun insertPressureData(userId: String, pressureCenter: Float, pressureLeft: Float, pressureRight: Float, timestamp: Timestamp) {
         // Generate a document ID that combines deviceID and timestamp for uniqueness
-        val documentId = "$deviceID-${timestamp.time}"
 
         val pressureData = hashMapOf(
-            "deviceID" to deviceID,
-            "pressure_center" to pressure_center,
-            "pressure_left" to pressure_left,
-            "pressure_right" to pressure_right,
+            "userID" to userId,
+            "pressure_center" to pressureCenter,
+            "pressure_left" to pressureLeft,
+            "pressure_right" to pressureRight,
             "timestamp" to timestamp
         )
 
         // Insert data as a new document in the pressure_data collection
-        pressureCollection.document(documentId).set(pressureData)
+        pressureCollection.document(userId).set(pressureData)
             .addOnSuccessListener {
-                println("New pressure document created/updated in Firestore with ID: $documentId")
+                println("New pressure document created/updated in Firestore with ID: $userId")
             }
             .addOnFailureListener { e ->
                 println("Error creating/updating pressure document in Firestore: $e")

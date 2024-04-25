@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
@@ -25,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wpms.Adapter.UserAdapter
 import com.example.wpms.Model.FirebaseRepository
+import com.example.wpms.Model.Patient
 import com.example.wpms.R
 import com.example.wpms.databinding.ActivityCaregiverHomeBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -76,17 +76,29 @@ class CaregiverHomeActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = UserAdapter(emptyList()) { user ->
             Toast.makeText(this, "Clicked user with id: ${user.userId}", Toast.LENGTH_SHORT).show()
+            val intentViewPatient = Intent(this, PatientHomeActivity::class.java)
+            startActivity(intentViewPatient)
         }
+
+
         recyclerView.adapter = adapter
 
         // Fetch patients and update RecyclerView
         if (caregiverId != null) {
-            firebaseRepository.getCaregiverPatients(caregiverId,
-                onSuccess = { patients ->
-                    adapter.setData(patients)
-                },
-                onFailure = { exception ->
-                    Toast.makeText(this, "Failed to fetch patients: ${exception.message}", Toast.LENGTH_SHORT).show()
+        firebaseRepository.getCaregiverPatients(caregiverId,
+            onSuccess = { users ->
+                val patients = users.map { user ->
+                    Patient(
+                        userId = user.userId,
+                        name = user.name,
+                        room = "",
+                        caregivers = listOf()
+                    )
+                }
+                adapter.setData(patients)
+            },
+            onFailure = { exception ->
+                Toast.makeText(this, "Failed to fetch patients: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             )
         }
