@@ -70,10 +70,10 @@ class PatientHomeActivity : AppCompatActivity() {
         observeData()
         dataHandler.startDataRetrieval()
 
-        binding.settingsButton.setOnClickListener{
-            val intentSettings = Intent(this, PatientSettingsActivity::class.java)
-            startActivity(intentSettings)
-        }
+//        binding.settingsButton.setOnClickListener{
+//            val intentSettings = Intent(this, PatientSettingsActivity::class.java)
+//            startActivity(intentSettings)
+//        }
 
         // Find the ComposeView
         val composeView = findViewById<ComposeView>(R.id.composeView)
