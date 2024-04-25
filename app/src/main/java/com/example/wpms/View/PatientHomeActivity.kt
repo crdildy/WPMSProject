@@ -99,13 +99,13 @@ class PatientHomeActivity : AppCompatActivity() {
             if (dataList.size >= 4) {
                 val deviceID = "your_device" // You need to define how you obtain the device ID
 
-                pressurePercentageCenter = dataList[0].toFloat()
+                pressurePercentageCenter = dataList[1].toFloat()
                 Log.d("PatientHomeActivity", "Pressure Center: $pressurePercentageCenter")
-                pressurePercentageLeft = dataList[1].toFloat()
+                pressurePercentageLeft = dataList[2].toFloat()
                 Log.d("PatientHomeActivity", "Pressure left: $pressurePercentageLeft")
-                pressurePercentageRight = dataList[2].toFloat()
+                pressurePercentageRight = dataList[3].toFloat()
                 Log.d("PatientHomeActivity", "Pressure right: $pressurePercentageRight")
-                val moisture = dataList[3]
+                val moisture = dataList[0]
                 Log.d("PatientHomeActivity", "moisture: $moisture")
                 val timestamp = Timestamp(System.currentTimeMillis())
                 Log.d("PatientHomeActivity", "Timestamp: $timestamp")
