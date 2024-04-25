@@ -33,17 +33,17 @@ class DataHandler(repository: FirebaseRepository) {
     }
 
     fun startDataRetrieval() {
-        Log.d("DataHandler", "call to start data retrieval")
+        Log.d("DataHandler2", "call to start data retrieval")
         coroutineScope.launch {
             try {
                 val dataList = clientTCP()
-                Log.d("DataHandler", "Received data: $dataList") // Log statement to check data reception
+                Log.d("DataHandler2", "Received data: $dataList") // Log statement to check data reception
                 withContext(Dispatchers.Main) {
                     dataLiveData.value = dataList
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Log.e("DataHandler", "Error reading values: ${e.message}")
+                    Log.e("DataHandler2", "Error reading values: ${e.message}")
                 }
             }
         }
