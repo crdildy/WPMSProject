@@ -1,7 +1,6 @@
 package com.example.wpms.Model
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.sql.Timestamp
 
@@ -13,7 +12,7 @@ class FirebaseRepository {
     private val moistureCollection = db.collection("moisture_data")
     private val breachCollection = db.collection("breach_data")
     private val patientCollection = db.collection("patients")
-    private val caregiverCollection = db.collection("caregivers")    //add other collections here
+    private val caregiverCollection = db.collection("caregivers")
 
     fun addCaregiver(userId: String, name: String, patients: Array<String>) {
         val caregiverDataDocRef = caregiverCollection.document(userId)
@@ -226,7 +225,7 @@ class FirebaseRepository {
     }
 
     //Pressure collection methods
-    fun insertPressureData(deviceID: String, pressure_center: Int, pressure_left: Int, pressure_right: Int, timestamp: Timestamp) {
+    fun insertPressureData(deviceID: String, pressure_center: Float, pressure_left: Float, pressure_right: Float, timestamp: Timestamp) {
         // Generate a document ID that combines deviceID and timestamp for uniqueness
         val documentId = "$deviceID-${timestamp.time}"
 

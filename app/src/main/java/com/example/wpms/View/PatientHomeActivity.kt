@@ -1,7 +1,6 @@
 package com.example.wpms.View
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -57,6 +56,9 @@ class PatientHomeActivity : AppCompatActivity() {
     private val pressureData = mutableListOf<Float>()
     private val pressureThreshold by mutableStateOf(85)
     private var alertDialog: AlertDialog? = null
+    private var pressurePercentageCenter by mutableStateOf(0f)
+    private var pressurePercentageLeft by mutableStateOf(0f)
+    private var pressurePercentageRight by mutableStateOf(0f)
 
 
     private var isMoist by mutableStateOf(0)
@@ -87,7 +89,7 @@ class PatientHomeActivity : AppCompatActivity() {
         // Set content for ComposeView
         composeView.setContent {
             // Remember to import CustomProgressBar composable function if it's not in the same package
-            CustomProgressBar(pressureVal)
+            CustomProgressBar(pressurePercentageCenter, pressurePercentageLeft, pressurePercentageRight)
         }
     }
 
@@ -96,69 +98,46 @@ class PatientHomeActivity : AppCompatActivity() {
             // Insert pressure data into Firestore
             if (dataList.size >= 4) {
                 val deviceID = "your_device" // You need to define how you obtain the device ID
-                val moisture = dataList[0]
+
+                pressurePercentageCenter = dataList[0].toFloat()
+                Log.d("PatientHomeActivity", "Pressure Center: $pressurePercentageCenter")
+                pressurePercentageLeft = dataList[1].toFloat()
+                Log.d("PatientHomeActivity", "Pressure left: $pressurePercentageLeft")
+                pressurePercentageRight = dataList[2].toFloat()
+                Log.d("PatientHomeActivity", "Pressure right: $pressurePercentageRight")
+                val moisture = dataList[3]
                 Log.d("PatientHomeActivity", "moisture: $moisture")
-                val pressure_center = dataList[1]
-                Log.d("PatientHomeActivity", "Pressure Center: $pressure_center")
-                val pressure_left = dataList[2]
-                Log.d("PatientHomeActivity", "Pressure left: $pressure_left")
-                val pressure_right = dataList[3]
-                Log.d("PatientHomeActivity", "Pressure right: $pressure_right")
                 val timestamp = Timestamp(System.currentTimeMillis())
                 Log.d("PatientHomeActivity", "Timestamp: $timestamp")
 
-                pressureData.add(pressure_center.toFloat())
-                pressureData.add(pressure_left.toFloat())
-                pressureData.add(pressure_right.toFloat())
+                pressureData.add(pressurePercentageCenter)
+                pressureData.add(pressurePercentageLeft)
+                pressureData.add(pressurePercentageRight)
 
                 isMoist = moisture
 
-//                pressureData.add(pressure_center.toFloat())
-//                pressureData.add(pressure_left.toFloat())
-//                pressureData.add(pressure_right.toFloat())
-
-//                calculate the average for the progress bar
-                val avgPressureProgressBar = (pressure_center + pressure_left + pressure_right) / 3
-                updateProgressBar(avgPressureProgressBar)
-                //Calculate the average pressure for each sensor
-
+                updateProgressBar(pressurePercentageCenter, pressurePercentageLeft, pressurePercentageRight)
 
                 // Insert pressure & moisture data into Firestore
-                firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
-
-
+                firebaseRepository.insertPressureData(deviceID, pressurePercentageCenter, pressurePercentageLeft, pressurePercentageRight, timestamp)
                 firebaseRepository.insertMoistureData(deviceID, moisture, timestamp)
 
                 //Breach detection
-                var isPressureDetected = pressure_center > pressureThreshold || pressure_left > pressureThreshold || pressure_right > pressureThreshold
+                var isPressureDetected = pressurePercentageCenter > pressureThreshold || pressurePercentageLeft > pressureThreshold || pressurePercentageRight > pressureThreshold
 
                 var isMoistDetected = isMoist == 1
                 firebaseRepository.insertBreach(deviceID, isMoistDetected, isPressureDetected, timestamp)
 
                 // Update bar chart data set
                 val entries = ArrayList<BarEntry>()
-                entries.add(BarEntry(0f, pressure_center.toFloat()))
-                entries.add(BarEntry(1f, pressure_left.toFloat()))
-                entries.add(BarEntry(2f, pressure_right.toFloat()))
+                entries.add(BarEntry(0f, pressurePercentageCenter))
+                entries.add(BarEntry(1f, pressurePercentageLeft))
+                entries.add(BarEntry(2f, pressurePercentageRight))
                 val dataSet = BarDataSet(entries, "Pressure Data")
                 dataSet.setColors(android.graphics.Color.BLUE, android.graphics.Color.GREEN, android.graphics.Color.YELLOW)
                 val data = BarData(dataSet)
                 barChart.data = data
                 barChart.invalidate()
-//                entries.add(BarEntry(0f, averagePressureCenter.toFloat()))
-//                entries.add(BarEntry(1f, averagePressureLeft.toFloat()))
-//                entries.add(BarEntry(2f, averagePressureRight.toFloat()))
-//                for (entry in entries){
-//                    barDataSet.addEntry(entry)
-//                }
-//                barDataSet.addEntry(BarEntry(barDataSet.entryCount.toFloat(), pressure_center.toFloat()))
-//                barDataSet.clear()
-//                barDataSet.label = "Pressure Data"
-//
-//                // Refresh chart
-//                barChart.data.notifyDataChanged()
-//                barChart.notifyDataSetChanged()
-//                barChart.invalidate()
 
 
                 // Check for alerts
@@ -173,15 +152,14 @@ class PatientHomeActivity : AppCompatActivity() {
                 Log.e("PatientHomeActivity", "Insufficient data received")
             }
         }
-
         // Observe data changes
         dataHandler.observeData().observe(this, dataObserver)
     }
 
-    private fun updateProgressBar(avgPressureProgressBar: Int) {
+    private fun updateProgressBar(preCenter: Float, preLeft: Float, preRight: Float) {
         runOnUiThread{
             binding.composeView.setContent {
-                CustomProgressBar(avgPressureProgressBar.toFloat(), 100.0F)
+                CustomProgressBar(preCenter.toFloat(), preLeft.toFloat(), preRight.toFloat())
             }
         }
     }
@@ -281,36 +259,88 @@ class PatientHomeActivity : AppCompatActivity() {
     @Preview
     @Composable
     fun ProgressBarPreview() {
-        CustomProgressBar(pressureVal)
+        CustomProgressBar(pressurePercentageCenter, pressurePercentageLeft, pressurePercentageRight)
     }
 
     @Composable
-    fun CustomProgressBar(pressurePercentage: Float = 1.0f) {
+fun CustomProgressBar(pressurePercentageCenter: Float, pressurePercentageLeft: Float , pressurePercentageRight: Float) {
         Canvas(
             modifier = Modifier
                 .size(150.dp)
                 .padding(20.dp)
-                .rotate(140f)
+                .rotate(164f)
         ) {
             val radius = size.minDimension / 2
-            // Background Arc
+            // Left Arc
             drawArc(
                 color = Color(android.graphics.Color.parseColor("#90A4AE")),
                 0f,
-                260f,
+                90f,
                 false,
                 style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
             )
 
-            // Foreground Arc
+            // Right Arc
             drawArc(
-                brush = Brush.linearGradient(listOf(
-                    Color(android.graphics.Color.parseColor("#b8002a")),
-                    Color(android.graphics.Color.parseColor("#ff8200"))
-                )),
+                color = Color(android.graphics.Color.parseColor("#90A4AE")),
+                120f,
+                90f,
+                false,
+                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
+                size = Size(size.width, size.height)
+            )
+
+            // Rear Arc
+            drawArc(
+                color = Color(android.graphics.Color.parseColor("#90A4AE")),
+                240f,
+                90f,
+                false,
+                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
+                size = Size(size.width, size.height)
+            )
+
+            // Foreground Arc right
+            drawArc(
+                brush = Brush.linearGradient(
+                    listOf(
+                        Color(android.graphics.Color.parseColor("#b8002a")),
+                        Color(android.graphics.Color.parseColor("#ff8200"))
+                    )
+                ),
                 0f,
-                pressurePercentage,
+                (pressurePercentageCenter / 100) * 90,
+                false,
+                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
+                size = Size(size.width, size.height)
+            )
+
+            // Foreground Arc left
+            drawArc(
+                brush = Brush.linearGradient(
+                    listOf(
+                        Color(android.graphics.Color.parseColor("#b8002a")),
+                        Color(android.graphics.Color.parseColor("#ff8200"))
+                    )
+                ),
+                120f,
+                (pressurePercentageLeft / 100) * 90,
+                false,
+                style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
+                size = Size(size.width, size.height)
+            )
+
+            // Foreground Arc Rear
+            drawArc(
+                brush = Brush.linearGradient(
+                    listOf(
+                        Color(android.graphics.Color.parseColor("#b8002a")),
+                        Color(android.graphics.Color.parseColor("#ff8200"))
+                    )
+                ),
+                240f,
+                (pressurePercentageCenter/ 100) * 90,
                 false,
                 style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
@@ -319,7 +349,7 @@ class PatientHomeActivity : AppCompatActivity() {
             // Profile Picture
             drawCircle(
                 color = Color.White,
-                radius =  radius - 25.dp.toPx(),
+                radius = radius - 25.dp.toPx(),
             )
             drawCircle(
                 color = Color.Gray,
