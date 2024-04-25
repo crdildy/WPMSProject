@@ -159,7 +159,7 @@ class PatientHomeActivity : AppCompatActivity() {
     private fun updateProgressBar(preCenter: Float, preLeft: Float, preRight: Float) {
         runOnUiThread{
             binding.composeView.setContent {
-                CustomProgressBar(preCenter.toFloat(), preLeft.toFloat(), preRight.toFloat())
+                CustomProgressBar(preCenter, preLeft, preRight)
             }
         }
     }
