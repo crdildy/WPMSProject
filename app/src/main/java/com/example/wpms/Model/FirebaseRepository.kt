@@ -1,6 +1,7 @@
 package com.example.wpms.Model
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.sql.Timestamp
 
@@ -30,21 +31,25 @@ class FirebaseRepository {
                 println("Error creating/updating caregiver document in Firestore: $e")
             }
     }
-    fun insertMoistureData(deviceId: String, isMoist: Int, timestamp: Timestamp){
-        //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
-        val documentId = "$deviceId-${timestamp.time}"
+    fun insertMoistureData(userId: String, isMoist: Int, timestamp: Timestamp){
+        // Generate a unique document ID
+        val documentId = "$userId-${timestamp.time}"
+
 
         //initializes a HashMap, 'moistureData', that maps the 'userId', 'isMoist', and 'timestamp' keys
         //to the values of the corresponding passed parameters of the function
         val moistureData = hashMapOf(
-            "deviceId" to deviceId,
+            "userId" to userId,
             "isMoist" to isMoist,
             "timestamp" to timestamp
         )
 
+        // Use the generated document ID for the new document
+        moistureCollection.document(documentId).set(moistureData)
         // Insert data as a new document in the pressure_data collection
         moistureCollection.document(documentId).set(moistureData)
             .addOnSuccessListener {
+                println("New moisture data document created/updated in Firestore with ID: $documentId")
                 println("New moisture document created/updated in Firestore with ID: $documentId")
             }
             .addOnFailureListener { e ->
@@ -74,8 +79,9 @@ class FirebaseRepository {
                 }
             }
             .addOnFailureListener { e ->
-                println("Error fetching caregiver document: $e")
+                println("Error creating/updating moisture data document in Firestore: $e")
             }
+
     }
 
     //Patient collection methods
@@ -195,7 +201,7 @@ class FirebaseRepository {
     }
 
     fun insertBreach(userId: String, isMoistDetected: Boolean, isPressureDetected: Boolean, timestamp: Timestamp){
-        //initializes a variable to reference a document in the 'moisture_data' collection identified by 'userId'
+        // Generate a unique document ID
         val documentId = "$userId-${timestamp.time}"
 
 
@@ -208,13 +214,13 @@ class FirebaseRepository {
             "timestamp" to timestamp
         )
 
-        // Insert data as a new document in the pressure_data collection
+        // Use the generated document ID for the new document
         breachCollection.document(documentId).set(breachData)
             .addOnSuccessListener {
-                println("New breach document created/updated in Firestore with ID: $documentId")
+                println("New breach data document created/updated in Firestore with ID: $documentId")
             }
             .addOnFailureListener { e ->
-                println("Error creating/updating breach document in Firestore: $e")
+                println("Error creating/updating breach data document in Firestore: $e")
             }
 
     }

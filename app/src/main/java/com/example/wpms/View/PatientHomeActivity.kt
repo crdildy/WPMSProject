@@ -6,6 +6,8 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
+import androidx.compose.ui.platform.ComposeView
+import com.example.wpms.R
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
@@ -21,14 +23,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.wpms.DataHandler
 import com.example.wpms.Model.FirebaseRepository
-import com.example.wpms.R
 import com.example.wpms.ViewModel.PatientHomeActivityViewModel
 import com.example.wpms.ViewModel.ViewModelFactory
 import com.example.wpms.databinding.ActivityPatientHomeBinding
@@ -58,6 +58,7 @@ class PatientHomeActivity : AppCompatActivity() {
     private val pressureThreshold by mutableStateOf(85)
     private var alertDialog: AlertDialog? = null
 
+
     private var isMoist by mutableStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,11 +82,12 @@ class PatientHomeActivity : AppCompatActivity() {
         barChart = findViewById(R.id.barChart)
         setupBarChart()
         // Set pressure data
-//        setPressureData()
+        setPressureData()
+
         // Set content for ComposeView
         composeView.setContent {
             // Remember to import CustomProgressBar composable function if it's not in the same package
-            CustomProgressBar(pressureVal, 100.0F)
+            CustomProgressBar(pressureVal)
         }
     }
 
@@ -105,6 +107,10 @@ class PatientHomeActivity : AppCompatActivity() {
                 val timestamp = Timestamp(System.currentTimeMillis())
                 Log.d("PatientHomeActivity", "Timestamp: $timestamp")
 
+                pressureData.add(pressure_center.toFloat())
+                pressureData.add(pressure_left.toFloat())
+                pressureData.add(pressure_right.toFloat())
+
                 isMoist = moisture
 
 //                pressureData.add(pressure_center.toFloat())
@@ -119,10 +125,13 @@ class PatientHomeActivity : AppCompatActivity() {
 
                 // Insert pressure & moisture data into Firestore
                 firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
+
+
                 firebaseRepository.insertMoistureData(deviceID, moisture, timestamp)
 
                 //Breach detection
                 var isPressureDetected = pressure_center > pressureThreshold || pressure_left > pressureThreshold || pressure_right > pressureThreshold
+
                 var isMoistDetected = isMoist == 1
                 firebaseRepository.insertBreach(deviceID, isMoistDetected, isPressureDetected, timestamp)
 
@@ -150,6 +159,7 @@ class PatientHomeActivity : AppCompatActivity() {
 //                barChart.data.notifyDataChanged()
 //                barChart.notifyDataSetChanged()
 //                barChart.invalidate()
+
 
                 // Check for alerts
                 if (isPressureDetected || isMoistDetected) {
@@ -229,45 +239,53 @@ class PatientHomeActivity : AppCompatActivity() {
     }
 
     //Setting the pressure values on the charts
-//    private fun setPressureData() {
-//        // Sample pressure data for 3 hours
-////        val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
-////        val pressureData = mutableListOf<Int>()
-////        val deviceID = "Device ID 2"
-////        val timestamp = Timestamp(System.currentTimeMillis())
-//        val entries = ArrayList<BarEntry>()
-//        entries.add(BarEntry(0f, 0f)) // Center
-//        entries.add(BarEntry(1f, 0f)) // Left
-//        entries.add(BarEntry(2f, 0f)) // Right
-//        val legend = barChart.legend
-//        legend.isEnabled
-//
-//        // Create data set
-//        barDataSet = BarDataSet(entries, "Pressure Data")
-//        // Set Color for Bars
-//        barDataSet.setColors(android.graphics.Color.BLUE, android.graphics.Color.GREEN, android.graphics.Color.YELLOW)
-//        // Animate Bars
-//        barChart.animateY(1500)
-//
-//        // Create BarData object and set data
-//        val barData = BarData(barDataSet)
-//        barChart.data = barData
-//        // Refresh chart
-//        barChart.invalidate()
-//    }
+    private fun setPressureData() {
+        // Sample pressure data for 3 hours
+//        val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
+        val pressureData = mutableListOf<Int>()
+        val deviceID = "Device ID 2"
+        val timestamp = Timestamp(System.currentTimeMillis())
+
+        dataHandler.observeData().observe(this, dataObserver)
+
+        val legend = barChart.legend
+        legend.isEnabled
+
+        // Prepare entries
+        val entries = ArrayList<BarEntry>()
+//        for (i in pressureData.indices) {
+//            entries.add(BarEntry(i.toFloat(), pressureData[i]))
+//        }
+
+        // Create data set
+        barDataSet = BarDataSet(entries, "Pressure Data")
+
+        // Set Color for Bars
+        barDataSet.setColors(android.graphics.Color.BLUE, android.graphics.Color.GREEN, android.graphics.Color.YELLOW)
+
+        // Animate Bars
+        barChart.animateY(1500)
+
+        // Create BarData object and set data
+        val barData = BarData(barDataSet)
+        barChart.data = barData
+
+        // Refresh chart
+        barChart.invalidate()
+    }
 
     fun detectMoisture() {
         return
     }
 
-//    @Preview
-//    @Composable
-//    fun ProgressBarPreview() {
-//        CustomProgressBar(pressureVal)
-//    }
+    @Preview
+    @Composable
+    fun ProgressBarPreview() {
+        CustomProgressBar(pressureVal)
+    }
 
     @Composable
-    fun CustomProgressBar(pressurePercentage: Float = 0f, maxPressure: Float) {
+    fun CustomProgressBar(pressurePercentage: Float = 1.0f) {
         Canvas(
             modifier = Modifier
                 .size(150.dp)
@@ -285,8 +303,6 @@ class PatientHomeActivity : AppCompatActivity() {
                 size = Size(size.width, size.height)
             )
 
-            val angle = pressurePercentage * 260f / maxPressure
-
             // Foreground Arc
             drawArc(
                 brush = Brush.linearGradient(listOf(
@@ -294,7 +310,7 @@ class PatientHomeActivity : AppCompatActivity() {
                     Color(android.graphics.Color.parseColor("#ff8200"))
                 )),
                 0f,
-                angle,
+                pressurePercentage,
                 false,
                 style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
@@ -312,3 +328,4 @@ class PatientHomeActivity : AppCompatActivity() {
         }
     }
 }
+
