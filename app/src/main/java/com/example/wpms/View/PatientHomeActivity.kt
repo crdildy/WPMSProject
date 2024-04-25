@@ -75,18 +75,18 @@ class PatientHomeActivity : AppCompatActivity() {
         barChart = findViewById(R.id.barChart)
         setupBarChart()
         // Set pressure data
-        setPressureData()
+//        setPressureData()
         // Set content for ComposeView
         composeView.setContent {
             // Remember to import CustomProgressBar composable function if it's not in the same package
-            CustomProgressBar(pressureVal)
+            CustomProgressBar(pressureVal, 100.0F)
         }
     }
 
     private fun observeData() {
         dataObserver = Observer { dataList ->
             // Insert pressure data into Firestore
-            if (dataList.size >= 3) {
+            if (dataList.size >= 4) {
                 val deviceID = "your_device" // You need to define how you obtain the device ID
                 val moisture = dataList[0]
                 Log.d("PatientHomeActivity", "moisture: $moisture")
@@ -98,16 +98,20 @@ class PatientHomeActivity : AppCompatActivity() {
                 Log.d("PatientHomeActivity", "Pressure right: $pressure_right")
                 val timestamp = Timestamp(System.currentTimeMillis())
                 Log.d("PatientHomeActivity", "Timestamp: $timestamp")
+
                 isMoist = moisture
 
-                pressureData.add(pressure_center.toFloat())
-                pressureData.add(pressure_left.toFloat())
-                pressureData.add(pressure_right.toFloat())
+//                pressureData.add(pressure_center.toFloat())
+//                pressureData.add(pressure_left.toFloat())
+//                pressureData.add(pressure_right.toFloat())
 
+//                calculate the average for the progress bar
+                val avgPressureProgressBar = (pressure_center + pressure_left + pressure_right) / 3
+                updateProgressBar(avgPressureProgressBar)
                 //Calculate the average pressure for each sensor
-                val averagePressureCenter = pressureData.average()
-                val averagePressureLeft = pressureData.average()
-                val averagePressureRight = pressureData.average()
+//                val averagePressureCenter = pressureData.average()
+//                val averagePressureLeft = pressureData.average()
+//                val averagePressureRight = pressureData.average()
 
                 // Insert pressure & moisture data into Firestore
                 firebaseRepository.insertPressureData(deviceID, pressure_center, pressure_left, pressure_right, timestamp)
@@ -120,20 +124,28 @@ class PatientHomeActivity : AppCompatActivity() {
 
                 // Update bar chart data set
                 val entries = ArrayList<BarEntry>()
-                entries.add(BarEntry(0f, averagePressureCenter.toFloat()))
-                entries.add(BarEntry(1f, averagePressureLeft.toFloat()))
-                entries.add(BarEntry(2f, averagePressureRight.toFloat()))
-                for (entry in entries){
-                    barDataSet.addEntry(entry)
-                }
-//                barDataSet.addEntry(BarEntry(barDataSet.entryCount.toFloat(), pressure_center.toFloat()))
-                barDataSet.clear()
-                barDataSet.label = "Pressure Data"
-
-                // Refresh chart
-                barChart.data.notifyDataChanged()
-                barChart.notifyDataSetChanged()
+                entries.add(BarEntry(0f, pressure_center.toFloat()))
+                entries.add(BarEntry(1f, pressure_left.toFloat()))
+                entries.add(BarEntry(2f, pressure_right.toFloat()))
+                val dataSet = BarDataSet(entries, "Pressure Data")
+                dataSet.setColors(android.graphics.Color.BLUE, android.graphics.Color.GREEN, android.graphics.Color.YELLOW)
+                val data = BarData(dataSet)
+                barChart.data = data
                 barChart.invalidate()
+//                entries.add(BarEntry(0f, averagePressureCenter.toFloat()))
+//                entries.add(BarEntry(1f, averagePressureLeft.toFloat()))
+//                entries.add(BarEntry(2f, averagePressureRight.toFloat()))
+//                for (entry in entries){
+//                    barDataSet.addEntry(entry)
+//                }
+//                barDataSet.addEntry(BarEntry(barDataSet.entryCount.toFloat(), pressure_center.toFloat()))
+//                barDataSet.clear()
+//                barDataSet.label = "Pressure Data"
+//
+//                // Refresh chart
+//                barChart.data.notifyDataChanged()
+//                barChart.notifyDataSetChanged()
+//                barChart.invalidate()
 
                 // Check for alerts
                 if (isPressureDetected || isMoistDetected) {
@@ -150,6 +162,14 @@ class PatientHomeActivity : AppCompatActivity() {
 
         // Observe data changes
         dataHandler.observeData().observe(this, dataObserver)
+    }
+
+    private fun updateProgressBar(avgPressureProgressBar: Int) {
+        runOnUiThread{
+            binding.composeView.setContent {
+                CustomProgressBar(avgPressureProgressBar.toFloat(), 100.0F)
+            }
+        }
     }
 
     fun showAlertWithSound(message: String) {
@@ -205,45 +225,45 @@ class PatientHomeActivity : AppCompatActivity() {
     }
 
     //Setting the pressure values on the charts
-    private fun setPressureData() {
-        // Sample pressure data for 3 hours
-//        val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
-//        val pressureData = mutableListOf<Int>()
-//        val deviceID = "Device ID 2"
-//        val timestamp = Timestamp(System.currentTimeMillis())
-        val entries = ArrayList<BarEntry>()
-        entries.add(BarEntry(0f, 0f)) // Center
-        entries.add(BarEntry(1f, 0f)) // Left
-        entries.add(BarEntry(2f, 0f)) // Right
-        val legend = barChart.legend
-        legend.isEnabled
-
-        // Create data set
-        barDataSet = BarDataSet(entries, "Pressure Data")
-        // Set Color for Bars
-        barDataSet.setColors(android.graphics.Color.BLUE, android.graphics.Color.GREEN, android.graphics.Color.YELLOW)
-        // Animate Bars
-        barChart.animateY(1500)
-
-        // Create BarData object and set data
-        val barData = BarData(barDataSet)
-        barChart.data = barData
-        // Refresh chart
-        barChart.invalidate()
-    }
+//    private fun setPressureData() {
+//        // Sample pressure data for 3 hours
+////        val pressureData = listOf(10f, 20f, 15f, 25f, 30f, 35f) // Replace with your actual data
+////        val pressureData = mutableListOf<Int>()
+////        val deviceID = "Device ID 2"
+////        val timestamp = Timestamp(System.currentTimeMillis())
+//        val entries = ArrayList<BarEntry>()
+//        entries.add(BarEntry(0f, 0f)) // Center
+//        entries.add(BarEntry(1f, 0f)) // Left
+//        entries.add(BarEntry(2f, 0f)) // Right
+//        val legend = barChart.legend
+//        legend.isEnabled
+//
+//        // Create data set
+//        barDataSet = BarDataSet(entries, "Pressure Data")
+//        // Set Color for Bars
+//        barDataSet.setColors(android.graphics.Color.BLUE, android.graphics.Color.GREEN, android.graphics.Color.YELLOW)
+//        // Animate Bars
+//        barChart.animateY(1500)
+//
+//        // Create BarData object and set data
+//        val barData = BarData(barDataSet)
+//        barChart.data = barData
+//        // Refresh chart
+//        barChart.invalidate()
+//    }
 
     fun detectMoisture() {
         return
     }
 
-    @Preview
-    @Composable
-    fun ProgressBarPreview() {
-        CustomProgressBar(pressureVal)
-    }
+//    @Preview
+//    @Composable
+//    fun ProgressBarPreview() {
+//        CustomProgressBar(pressureVal)
+//    }
 
     @Composable
-    fun CustomProgressBar(pressurePercentage: Float = 1.0f) {
+    fun CustomProgressBar(pressurePercentage: Float = 0f, maxPressure: Float) {
         Canvas(
             modifier = Modifier
                 .size(150.dp)
@@ -261,6 +281,8 @@ class PatientHomeActivity : AppCompatActivity() {
                 size = Size(size.width, size.height)
             )
 
+            val angle = pressurePercentage * 260f / maxPressure
+
             // Foreground Arc
             drawArc(
                 brush = Brush.linearGradient(listOf(
@@ -268,7 +290,7 @@ class PatientHomeActivity : AppCompatActivity() {
                     Color(android.graphics.Color.parseColor("#ff8200"))
                 )),
                 0f,
-                pressurePercentage,
+                angle,
                 false,
                 style = Stroke(25.dp.toPx(), cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
