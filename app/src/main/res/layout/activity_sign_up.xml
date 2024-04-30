@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".View.LogInActivity">
+    tools:context=".View.LogInActivity"
+    android:background="#967bb6">
 
     <TextView
         android:id="@+id/sign_up"
