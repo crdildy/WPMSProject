@@ -58,16 +58,20 @@ class PatientViewActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         firebaseRepository.getPatients(
-            onSuccess = { users ->
-                val patients = users.map { user ->
+            onSuccess = { patient ->
+                val patients = patient.map { patient ->
                     Patient(
-                        userId = user.userId,
-                        name = user.name,
-                        room = "", // You'll need to fetch the room number for each user
-                        caregivers = listOf() // You'll need to fetch the caregivers for each user
+                        userId = patient.userId,
+                        name = patient.name,
+                        room = "", // Fetch the room number for each user
+                        caregivers = listOf() // Fetch the list of caregivers for each user
                     )
                 }
-                adapter.setData(patients)
+                if (patients.isEmpty()) {
+                    Toast.makeText(this, "No patients available", Toast.LENGTH_SHORT).show()
+                } else {
+                    adapter.setData(patients) // Update the adapter with the new list of patients
+                }
             },
             onFailure = { exception ->
                 Toast.makeText(this, "Failed to fetch patients: ${exception.message}", Toast.LENGTH_SHORT).show()

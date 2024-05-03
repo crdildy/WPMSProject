@@ -14,7 +14,7 @@ def pressureDetectionAlwaysTrue():
 s = socket.socket()
 
 # Bind to a port
-s.bind(("192.168.2.178", 12345))
+s.bind(('localhost', 12345))
 
 # Listen for incoming connections
 s.listen(5)

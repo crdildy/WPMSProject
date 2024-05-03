@@ -55,7 +55,7 @@ class DataHandler(repository: FirebaseRepository) {
 
     private fun clientTCP(): List<Int> {
         // Define the server address and port
-        val serverAddress = "192.168.2.178"
+        val serverAddress = "10.0.2.2"
         val port = 12345
 
         // Create a socket to connect to the server

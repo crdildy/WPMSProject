@@ -59,17 +59,54 @@ class FirebaseRepository {
 
     fun addPatientToList(caregiverId: String, patientId: String) {
         val caregiverDocRef = caregiverCollection.document(caregiverId)
+        val patientDocRef = patientCollection.document(patientId)
 
+        // Add caregiver to patient's list
+        patientDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val caregivers = document.get("caregivers") as? List<*>
+
+                    if (caregivers != null) {
+
+                        // Create a list of active caregivers
+                        val updatedCaregivers = caregivers?.toMutableList()
+
+                        // Add caregiver to patient's list
+                        updatedCaregivers?.add(caregiverId)
+
+                        // Update the patient's list of caregivers
+                        patientDocRef.update("caregivers", updatedCaregivers)
+                            .addOnSuccessListener {
+                                println("Caregiver added to patient's list: $caregiverId")
+                            }
+                            .addOnFailureListener { e ->
+                                println("Error adding caregiver to patient's list: $e")
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                println("Unable to find users: $e")
+            }
+        // Add patient to caregiver's list
         caregiverDocRef.get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val patients = document.get("patients") as? List<*>
+
                     if (patients != null) {
+
+                        // Create a list of active patients
                         val updatedPatients = patients.toMutableList()
+
+                        // Add patient to caregiver's list
                         updatedPatients.add(patientId)
+
+                        // Update the caregiver's list of patients
                         caregiverDocRef.update("patients", updatedPatients)
                             .addOnSuccessListener {
-                                println("Patient added to caregiver's list")
+                                println("Patient added to caregiver's list: $patientId")
                             }
                             .addOnFailureListener { e ->
                                 println("Error adding patient to caregiver's list: $e")
@@ -78,9 +115,8 @@ class FirebaseRepository {
                 }
             }
             .addOnFailureListener { e ->
-                println("Error creating/updating moisture data document in Firestore: $e")
+                println("Unable to find users: $e")
             }
-
     }
 
     //Patient collection methods
@@ -187,11 +223,11 @@ class FirebaseRepository {
         }
 }
 
-    fun getPatients(onSuccess: (List<User>) -> Unit, onFailure: (Exception) -> Unit) {
+    fun getPatients(onSuccess: (List<Patient>) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("patients")
             .get()
             .addOnSuccessListener { result ->
-                val patients = result.map { it.toObject(User::class.java) }
+                val patients = result.map { it.toObject(Patient::class.java) }
                 onSuccess(patients)
             }
             .addOnFailureListener { exception ->
